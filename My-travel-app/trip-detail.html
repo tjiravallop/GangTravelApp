@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GangTrip - รายละเอียดทริป</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="min-h-screen bg-slate-50 font-sans m-0 text-slate-800">
+
+  <div class="bg-white border-b border-gray-200 py-3 px-4 shadow-2xs">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <button onclick="window.location.href='dashboard.html'" class="text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer">
+        ← แดชบอร์ด
+      </button>
+      <div class="text-center max-w-xs sm:max-w-md">
+        <h2 id="detailTripTitle" class="text-xl font-bold text-gray-900 truncate">ชื่อทริป</h2>
+        <p id="detailTripSub" class="text-xs text-gray-500 truncate">วันเวลาและพิกัด</p>
+        <p id="detailTripMembers" class="text-[11px] text-teal-600 font-medium mt-0.5 truncate">👥 สมาชิก:</p>
+      </div>
+      <button id="editTripBtn" class="hidden text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium px-3 py-1.5 rounded-lg cursor-pointer">
+        ⚙️ ตั้งค่าทริป/สมาชิก
+      </button>
+    </div>
+  </div>
+
+  <main class="max-w-6xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
+    <section class="lg:col-span-6 bg-white p-6 rounded-2xl border border-gray-200 shadow-2xs flex flex-col">
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="text-lg font-bold text-gray-900">📅 แผนการเดินทางรายวัน</h3>
+        <button id="addPlanMainBtn" onclick="openPlanModal('create')" class="hidden text-xs bg-blue-50 text-blue-600 font-bold px-3 py-1.5 rounded-lg hover:bg-blue-100 cursor-pointer">+ เพิ่มกิจกรรม</button>
+      </div>
+      <div id="dayTabsContainer" class="flex gap-1.5 overflow-x-auto pb-3 mb-4 border-b border-gray-100"></div>
+      <div id="planTimelineContainer" class="flex-1 space-y-4 relative before:absolute before:top-2 before:bottom-2 before:left-[11px] before:w-0.5 before:bg-slate-200"></div>
+    </section>
+
+    <section class="lg:col-span-6 bg-white p-6 rounded-2xl border border-gray-200 shadow-2xs space-y-5">
+      <div>
+        <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-100">
+          <h3 class="text-lg font-bold text-gray-900">💰 บันทึกบิลและแชร์เงิน</h3>
+          <div class="flex gap-1.5">
+            <button onclick="copyLineSummary()" class="text-xs bg-slate-100 text-slate-600 font-bold px-2.5 py-1.5 rounded-lg hover:bg-slate-200 cursor-pointer">📋 ก๊อปส่งไลน์</button>
+            <button onclick="openExpenseModal('create')" class="text-xs bg-emerald-50 text-emerald-600 font-bold px-3 py-1.5 rounded-lg hover:bg-emerald-100 cursor-pointer">+ บันทึกจ่าย</button>
+          </div>
+        </div>
+        <div id="expenseListContainer" class="space-y-2 max-h-[160px] overflow-y-auto mb-2"></div>
+      </div>
+      <div>
+        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">📊 สรุปยอดกระเป๋าตังค์รายคน</h4>
+        <div id="individualSummaryContainer" class="grid grid-cols-2 gap-2 max-h-[120px] overflow-y-auto"></div>
+      </div>
+      <div class="bg-blue-50/50 border border-blue-100 p-4 rounded-xl">
+        <h4 class="text-xs font-bold text-blue-700 uppercase tracking-wider mb-2">💸 เส้นทางการโอนเงินคืน</h4>
+        <div id="debtClearInstructionsContainer" class="space-y-1.5 text-xs font-medium text-slate-700"></div>
+      </div>
+      <div class="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center">
+        <span class="text-xs font-medium text-slate-400">ยอดรวมใช้จ่ายทั้งทริป:</span>
+        <span id="totalExpenseAmount" class="font-extrabold text-xl text-emerald-400">0 บาท</span>
+      </div>
+    </section>
+  </main>
+
+  <div id="planModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-6 space-y-4">
+      <h3 id="planModalTitle" class="text-md font-bold text-gray-900">📌 กิจกรรมลง Timeline</h3>
+      <form onsubmit="handlePlanSubmit(event)" class="space-y-3">
+        <input type="hidden" id="editPlanId">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1">เลือกเดินทางวันที่</label>
+            <select id="planDaySelect" class="w-full border border-gray-300 rounded-xl px-2 py-2 text-sm bg-white"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1">เวลา</label>
+            <input type="time" id="planTime" required class="w-full border border-gray-300 rounded-xl px-3 py-1.5 text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 mb-1">ชื่อสถานที่ / กิจกรรม</label>
+          <input type="text" id="planTitle" required placeholder="เช่น กินกาแฟ คาเฟ่เก๋ๆ" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 mb-1">📍 ลิงก์แผนที่ Google Maps</label>
+          <input type="url" id="planMapUrl" placeholder="http://googleusercontent.com/maps.google.com/..." class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm text-blue-600 font-mono">
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closePlanModal()" class="flex-1 bg-gray-100 py-2 rounded-lg text-xs cursor-pointer">ยกเลิก</button>
+          <button type="submit" id="planSubmitBtn" class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-xs cursor-pointer">บันทึกแผน</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="expenseModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-6 space-y-4">
+      <h3 id="expenseModalTitle" class="text-md font-bold text-gray-900">💸 บันทึกบิลค่าใช้จ่ายกองกลาง</h3>
+      <form onsubmit="handleExpenseSubmit(event)" class="space-y-3">
+        <input type="hidden" id="editExpenseId">
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1">👑 ใครสำรองจ่ายก่อน?</label>
+            <select id="expensePayerSelect" required class="w-full border border-gray-300 rounded-xl px-2 py-2 text-sm bg-white"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-500 mb-1">จำนวนเงินรวม (บาท)</label>
+            <input type="number" id="expenseAmount" required placeholder="1200" class="w-full border border-gray-300 rounded-xl px-3 py-1.5 text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 mb-1">จ่ายค่าอะไร?</label>
+          <input type="text" id="expenseTitle" required placeholder="ค่าที่พัก, ค่ากินชาบู" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-500 mb-1">🖼️ ลิงก์รูปภาพสลิป/หลักฐาน (ก๊อปลิงก์จาก LINE มาแปะ)</label>
+          <input type="url" id="expenseReceiptUrl" placeholder="https://image-hosting.com/slip.jpg" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm font-mono">
+        </div>
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <label class="block text-xs font-bold text-blue-600 mb-1.5">🎯 เลือกเพื่อนร่วมหารบิลนี้:</label>
+          <div id="splitMembersCheckboxContainer" class="grid grid-cols-2 gap-2 text-xs"></div>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" onclick="closeExpenseModal()" class="flex-1 bg-gray-100 py-2 rounded-lg text-xs cursor-pointer">ยกเลิก</button>
+          <button type="submit" id="expenseSubmitBtn" class="flex-1 bg-emerald-600 text-white py-2 rounded-lg text-xs cursor-pointer">บันทึกบิล</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db } from "./js/firebase-config.js";
+    import { doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    let trips = [];
+    let currentUserSession = JSON.parse(localStorage.getItem('gang_current_session'));
+    let currentOpenTripId = localStorage.getItem('gang_current_trip_id');
+    let currentSelectedDayIndex = 0;
+
+    if (!currentUserSession || !currentOpenTripId) {
+      window.location.href = "dashboard.html";
+    }
+
+    function calculateTotalDaysList(start, end) {
+      let arr = []; let dt = new Date(start); let ed = new Date(end);
+      while(dt <= ed) { arr.push(dt.toISOString().split('T')[0]); dt.setDate(dt.getDate() + 1); if(arr.length > 30) break; }
+      return arr;
+    }
+
+    // เปิดสตรีมส่องถังข้อมูลทริปกลางคลาวด์เรียลไทม์
+    onSnapshot(doc(db, "gang_system", "trips_data"), (docSnap) => {
+      if (docSnap.exists()) { trips = docSnap.data().list || []; }
+      renderPlansAndExpenses();
+      
+      // ดึงรายละเอียดหัวข้อทริปนั้นๆ ขึ้นมาโปรย
+      const targetTrip = trips.find(t => t.id === currentOpenTripId);
+      if(targetTrip) {
+        document.getElementById('detailTripTitle').innerText = targetTrip.name;
+        document.getElementById('detailTripSub').innerText = `📍 ${targetTrip.dest} | 📅 ${targetTrip.start} ถึง ${targetTrip.end}`;
+        document.getElementById('detailTripMembers').innerText = `👥 สมาชิกแก๊ง: ${targetTrip.memberList.join(', ')}`;
+        renderDayTabs(targetTrip);
+      }
+    });
+
+    function applyRoleAccess() {
+      const editTripBtn = document.getElementById('editTripBtn');
+      const addPlanBtn = document.getElementById('addPlanMainBtn');
+      if (currentUserSession.role === 'admin') {
+        if (editTripBtn) editTripBtn.classList.remove('hidden');
+        if (addPlanBtn) addPlanBtn.classList.remove('hidden');
+      }
+    }
+    applyRoleAccess();
+
+    async function saveTripsToFirebase() { await setDoc(doc(db, "gang_system", "trips_data"), { list: trips }); }
+
+    function renderDayTabs(trip) {
+      const container = document.getElementById('dayTabsContainer'); if(!container) return; container.innerHTML = '';
+      calculateTotalDaysList(trip.start, trip.end).forEach((dateStr, idx) => {
+        const isActive = idx === currentSelectedDayIndex; const btnStyle = isActive ? "bg-blue-600 text-white font-bold" : "bg-gray-100 text-gray-600";
+        container.innerHTML += `<button onclick="switchDayTab(${idx})" class="text-xs px-3 py-2 rounded-xl whitespace-nowrap shrink-0 cursor-pointer ${btnStyle}">วันที่ ${idx + 1} (${dateStr.substring(5)})</button>`;
+      });
+    }
+
+    window.switchDayTab = function(idx) { currentSelectedDayIndex = idx; renderPlansAndExpenses(); const targetTrip = trips.find(t => t.id === currentOpenTripId); if(targetTrip) renderDayTabs(targetTrip); };
+
+    function renderPlansAndExpenses() {
+      const targetTrip = trips.find(t => t.id === currentOpenTripId); if (!targetTrip) return;
+      
+      // 1. วาดไทม์ไลน์ฝั่งซ้าย
+      const planContainer = document.getElementById('planTimelineContainer'); planContainer.innerHTML = '';
+      const filteredPlans = (targetTrip.plans || []).filter(p => p.dayIndex === currentSelectedDayIndex);
+      
+      if (filteredPlans.length === 0) { planContainer.innerHTML = `<p class="text-xs text-gray-400 italic py-6 text-center w-full">วันนี้ยังไม่มีกิจกรรมเลย</p>`; } 
+      else {
+        filteredPlans.sort((a, b) => a.time.localeCompare(b.time));
+        filteredPlans.forEach(plan => {
+          const mapBtn = plan.mapUrl ? `<a href="${plan.mapUrl}" target="_blank" class="text-[11px] bg-white border px-2 py-1 rounded-md text-blue-600 font-bold shadow-2xs">📍 แผนที่</a>` : '';
+          const adminControls = currentUserSession.role === 'admin' ? `<button onclick="openPlanModal('edit', '${plan.id}')" class="text-xs text-gray-400 p-0.5 cursor-pointer">✏️</button><button onclick="deletePlan('${plan.id}')" class="text-xs text-gray-400 p-0.5 cursor-pointer">🗑️</button>` : '';
+          planContainer.innerHTML += `<div class="flex items-start gap-3 relative pl-2"><div class="w-6 h-6 rounded-full bg-blue-600 border-4 border-white z-10"></div><div class="bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 flex-1 flex justify-between items-center"><div class="truncate max-w-[70%]"><span class="text-xs font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md mr-1">${plan.time}</span><span class="text-sm font-semibold text-gray-800">${plan.title}</span></div><div class="flex items-center gap-1">${mapBtn} ${adminControls}</div></div></div>`;
+        });
+      }
+
+      // 2. วาดบิลค่าใช้จ่ายฝั่งขวา
+      const expenseContainer = document.getElementById('expenseListContainer'); expenseContainer.innerHTML = '';
+      let totalSum = 0; let balances = {}; targetTrip.memberList.forEach(m => balances[m] = 0);
+
+      if (!targetTrip.expenses || targetTrip.expenses.length === 0) { expenseContainer.innerHTML = `<p class="text-xs text-gray-400 italic py-6 text-center">ยังไม่มีบิลค่าใช้จ่ายเลย</p>`; } 
+      else {
+        targetTrip.expenses.forEach(exp => {
+          const amt = parseFloat(exp.amount) || 0; totalSum += amt;
+          const splitWith = exp.splitBetween || targetTrip.memberList; const shareCost = amt / splitWith.length;
+          if(balances[exp.payer] !== undefined) balances[exp.payer] += amt;
+          splitWith.forEach(p => { if(balances[p] !== undefined) balances[p] -= shareCost; });
+          const receiptBtn = exp.receiptUrl ? `<a href="${exp.receiptUrl}" target="_blank" class="text-[10px] text-emerald-600 font-bold block hover:underline">🖼️ ดูรูปสลิป</a>` : '';
+          expenseContainer.innerHTML += `<div class="flex justify-between items-center bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs"><div class="truncate max-w-[70%]"><span class="font-bold text-gray-700 bg-white border px-1.5 py-0.5 rounded-md mr-1">${exp.payer}</span><span class="text-gray-600 font-semibold">${exp.title}</span><p class="text-[10px] text-gray-400 mt-0.5">คนหาร: ${splitWith.join(', ')}</p>${receiptBtn}</div><div class="flex items-center gap-1.5 shrink-0"><span class="font-extrabold text-gray-900 mr-1">${amt.toLocaleString()} ฿</span><button onclick="openExpenseModal('edit', '${exp.id}')">✏️</button><button onclick="deleteExpense('${exp.id}')">🗑️</button></div></div>`;
+        });
+      }
+
+      document.getElementById('totalExpenseAmount').innerText = `${totalSum.toLocaleString()} บาท`;
+      const summaryContainer = document.getElementById('individualSummaryContainer'); summaryContainer.innerHTML = '';
+      for (let person in balances) {
+        const bal = Math.round(balances[person]); let colorClass = "text-gray-500 bg-gray-100/60"; let text = "เจ๊า 🤝";
+        if (bal > 0) { colorClass = "text-emerald-700 bg-emerald-50 border border-emerald-200"; text = `ได้คืน +${bal.toLocaleString()} ฿`; }
+        else if (bal < 0) { colorClass = "text-red-700 bg-red-50 border border-red-200"; text = `ต้องจ่าย ${bal.toLocaleString()} ฿`; }
+        summaryContainer.innerHTML += `<div class="p-2 rounded-xl flex flex-col ${colorClass}"><span class="font-bold truncate">${person}</span><span class="font-bold text-[10px]">${text}</span></div>`;
+      }
+
+      // ระบบวิเคราะห์คำนวณจับคู่โอนเงิน
+      const debtContainer = document.getElementById('debtClearInstructionsContainer'); debtContainer.innerHTML = '';
+      let debtors = [], creditors = [];
+      for (let person in balances) {
+        if (balances[person] < -1) debtors.push({ name: person, amount: Math.abs(balances[person]) });
+        else if (balances[person] > 1) creditors.push({ name: person, amount: balances[person] });
+      }
+      let foundIns = false, dIdx = 0, cIdx = 0;
+      while (dIdx < debtors.length && cIdx < creditors.length) {
+        let deb = debtors[dIdx], cred = creditors[cIdx]; let settled = Math.min(deb.amount, cred.amount);
+        if (settled > 1) {
+          debtContainer.innerHTML += `<div class="flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-xl text-xs"><span class="text-red-600 font-bold">💸 ${deb.name}</span> โอนให้ <span class="text-emerald-600 font-bold">➡️ ${cred.name}</span><span class="ml-auto font-extrabold bg-slate-100 px-2 py-0.5 rounded-md">${Math.round(settled).toLocaleString()} ฿</span></div>`;
+          foundIns = true;
+        }
+        deb.amount -= settled; cred.amount -= settled;
+        if (deb.amount <= 1) dIdx++; if (cred.amount <= 1) cIdx++;
+      }
+      if (!foundIns) debtContainer.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-1">คลังเจ๊ากันทุกคนแล้วจ้า! 🎉</p>`;
+    }
+
+    window.openPlanModal = function(mode, planId = null) {
