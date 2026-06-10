@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GangTrip - รายละเอียดทริป</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    .image-render-pixel {
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+    }
+  </style>
 </head>
 <body class="min-h-screen bg-slate-50 font-sans m-0 text-slate-800">
 
@@ -18,18 +24,27 @@
         <p id="detailTripSub" class="text-xs text-gray-500 truncate">วันเวลาและพิกัด</p>
         <p id="detailTripMembers" class="text-[11px] text-teal-600 font-medium mt-0.5 truncate">👥 สมาชิก:</p>
       </div>
-      <button id="editTripBtn" class="hidden text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium px-3 py-1.5 rounded-lg cursor-pointer">
+      <button id="editTripBtn" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium px-3 py-1.5 rounded-lg cursor-pointer">
         ⚙️ ตั้งค่าทริป/สมาชิก
       </button>
     </div>
   </div>
 
+  <div class="max-w-6xl mx-auto px-4 mt-4">
+    <div class="bg-slate-900 text-slate-100 p-4 rounded-2xl border border-slate-800 shadow-md flex flex-col sm:flex-row items-center gap-4">
+      <div class="shrink-0 text-center sm:text-left">
+        <span class="text-xs font-bold text-amber-400 block tracking-widest uppercase">GANG AVATARS</span>
+        <h3 class="text-sm font-black">👥 เพื่อนร่วมทริปออนไลน์</h3>
+      </div>
+      <div id="tripAvatarsContainer" class="flex flex-wrap gap-6 justify-center sm:justify-start items-end pb-1 overflow-x-auto w-full"></div>
+    </div>
+  </div>
+
   <main class="max-w-6xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-    
     <section class="lg:col-span-6 bg-white p-6 rounded-2xl border border-gray-200 shadow-2xs flex flex-col">
       <div class="flex justify-between items-center mb-3">
         <h3 class="text-lg font-bold text-gray-900">📅 แผนการเดินทางรายวัน</h3>
-        <button id="addPlanMainBtn" onclick="openPlanModal('create')" class="hidden text-xs bg-blue-50 text-blue-600 font-bold px-3 py-1.5 rounded-lg hover:bg-blue-100 cursor-pointer">+ เพิ่มกิจกรรม</button>
+        <button id="addPlanMainBtn" onclick="openPlanModal('create')" class="text-xs bg-blue-50 text-blue-600 font-bold px-3 py-1.5 rounded-lg hover:bg-blue-100 cursor-pointer">+ เพิ่มกิจกรรม</button>
       </div>
       <div id="dayTabsContainer" class="flex gap-1.5 overflow-x-auto pb-3 mb-4 border-b border-gray-100"></div>
       <div id="planTimelineContainer" class="flex-1 space-y-4 relative before:absolute before:top-2 before:bottom-2 before:left-[11px] before:w-0.5 before:bg-slate-200"></div>
@@ -129,12 +144,35 @@
 
   <script type="module">
     import { db } from "./js/firebase-config.js";
-    import { doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     let trips = [];
+    let allAvatars = {}; // โลคอลเก็บดีเอ็นเออวตารเพื่อนๆ ทั่วประเทศ
     let currentUserSession = JSON.parse(localStorage.getItem('gang_current_session'));
     let currentOpenTripId = localStorage.getItem('gang_current_trip_id');
     let currentSelectedDayIndex = 0;
+
+    const configData = {
+      skin: ["#ffdbac", "#f1c27d", "#e0ac69", "#c68642", "#8d5524"],
+      hair: [
+        { name: "ไม่มีผม", color: "transparent", draw: null },
+        { name: "ผมสั้น", color: "#2d3748", type: "short" },
+        { name: "ผมยาว", color: "#e53e3e", type: "long" },
+        { name: "ทรงโมฮอค", color: "#ecc94b", type: "mohawk" },
+        { name: "ผมหน้าม้า", color: "#4a5568", type: "fringe" }
+      ],
+      glasses: [
+        { name: "ไม่ใส่แว่น", color: "transparent" },
+        { name: "แว่นกลม", color: "#3182ce" },
+        { name: "แว่นดำ", color: "#1a202c" }
+      ],
+      cloth: [
+        { name: "ขาว", color: "#ffffff" },
+        { name: "น้ำเงิน", color: "#2b6cb0" },
+        { name: "แดง", color: "#e53e3e" },
+        { name: "ส้ม", color: "#dd6b20" }
+      ]
+    };
 
     if (!currentUserSession || !currentOpenTripId) {
       window.location.href = "dashboard.html";
@@ -146,32 +184,105 @@
       return arr;
     }
 
-    // เปิดสตรีมส่องถังข้อมูลทริปกลางคลาวด์เรียลไทม์
+    // สตรีมจับตาคลังอวตารของระบบออนไลน์ดึงมาวาด Realtime
+    onSnapshot(collection(db, "gang_avatars"), (snapshot) => {
+      snapshot.forEach(doc => {
+        allAvatars[doc.id] = doc.data();
+      });
+      renderTripAvatars();
+    });
+
     onSnapshot(doc(db, "gang_system", "trips_data"), (docSnap) => {
       if (docSnap.exists()) { trips = docSnap.data().list || []; }
       renderPlansAndExpenses();
       
-      // ดึงรายละเอียดหัวข้อทริปนั้นๆ ขึ้นมาโปรย
       const targetTrip = trips.find(t => t.id === currentOpenTripId);
       if(targetTrip) {
         document.getElementById('detailTripTitle').innerText = targetTrip.name;
         document.getElementById('detailTripSub').innerText = `📍 ${targetTrip.dest} | 📅 ${targetTrip.start} ถึง ${targetTrip.end}`;
         document.getElementById('detailTripMembers').innerText = `👥 สมาชิกแก๊ง: ${targetTrip.memberList.join(', ')}`;
+        document.getElementById('editTripBtn').setAttribute('onclick', `window.location.href='dashboard.html'`); // สั่งให้ปุ่มลิ้งกลับไปเปิดฟอร์มแก้ทริปหลัก
         renderDayTabs(targetTrip);
+        renderTripAvatars();
       }
     });
 
-    function applyRoleAccess() {
-      const editTripBtn = document.getElementById('editTripBtn');
-      const addPlanBtn = document.getElementById('addPlanMainBtn');
-      if (currentUserSession.role === 'admin') {
-        if (editTripBtn) editTripBtn.classList.remove('hidden');
-        if (addPlanBtn) addPlanBtn.classList.remove('hidden');
+    // 🎨 ฟังก์ชันเอ็นจิ้นจำลองการประกบ Layer ดีเอ็นเอพิกเซลมาพ่นบนหน้าจอ
+    function drawAvatarOnCanvas(canvasId, dna) {
+      const canvas = document.getElementById(canvasId); if(!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.width = 32; canvas.height = 32;
+      ctx.clearRect(0, 0, 32, 32);
+
+      // 1. วาดโครงหน้า
+      ctx.fillStyle = configData.skin[dna.skin || 0];
+      ctx.fillRect(10, 12, 12, 11); ctx.fillRect(12, 23, 8, 3);
+
+      // 2. ตา/ปาก
+      ctx.fillStyle = "#000000"; ctx.fillRect(12, 16, 2, 2); ctx.fillRect(18, 16, 2, 2);
+      ctx.fillStyle = "#ffffff"; ctx.fillRect(13, 16, 1, 1); ctx.fillRect(19, 16, 1, 1);
+      ctx.fillStyle = "#ff6b6b"; ctx.fillRect(14, 20, 4, 1);
+
+      // 3. ผม
+      const hairItem = configData.hair[dna.hair || 0];
+      if (hairItem && hairItem.color !== 'transparent') {
+        ctx.fillStyle = hairItem.color;
+        if (hairItem.type === "short") { ctx.fillRect(9, 10, 14, 4); ctx.fillRect(9, 11, 2, 5); ctx.fillRect(21, 11, 2, 5); }
+        else if (hairItem.type === "long") { ctx.fillRect(9, 10, 14, 5); ctx.fillRect(8, 12, 3, 12); ctx.fillRect(21, 12, 3, 12); }
+        else if (hairItem.type === "mohawk") { ctx.fillRect(14, 6, 4, 7); ctx.fillRect(15, 4, 2, 3); }
+        else if (hairItem.type === "fringe") { ctx.fillRect(9, 10, 14, 4); ctx.fillRect(10, 14, 12, 3); ctx.fillRect(13, 17, 3, 1); }
+      }
+
+      // 4. ชุดเสื้อผ้า
+      const clothItem = configData.cloth[dna.cloth || 0];
+      if (clothItem) {
+        ctx.fillStyle = clothItem.color;
+        ctx.fillRect(8, 25, 16, 7); ctx.fillRect(6, 25, 2, 4); ctx.fillRect(24, 25, 2, 4);
+      }
+
+      // 5. แว่นตา
+      const glassItem = configData.glasses[dna.glasses || 0];
+      if (glassItem && glassItem.color !== 'transparent') {
+        ctx.fillStyle = glassItem.color; ctx.fillRect(11, 15, 4, 3); ctx.fillRect(17, 15, 4, 3); ctx.fillRect(15, 16, 2, 1);
+        ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.fillRect(12, 16, 1, 1); ctx.fillRect(18, 16, 1, 1);
       }
     }
-    applyRoleAccess();
 
-    async function saveTripsToFirebase() { await setDoc(doc(db, "gang_system", "trips_data"), { list: trips }); }
+    // 👥 วาดกองกำลังอวตารตามรายชื่อเพื่อนที่มีอยู่ในทริปนี้
+    function renderTripAvatars() {
+      const targetTrip = trips.find(t => t.id === currentOpenTripId); if (!targetTrip) return;
+      const container = document.getElementById('tripAvatarsContainer'); if (!container) return;
+      container.innerHTML = '';
+
+      targetTrip.memberList.forEach(name => {
+        const avatarData = allAvatars[name];
+        const canvasId = `canvas_member_${name.replace(/\s+/g, '_')}`;
+
+        if (avatarData && avatarData.dna) {
+          container.innerHTML += `
+            <div class="flex flex-col items-center gap-1 relative group cursor-help shrink-0">
+              <div class="absolute -top-10 bg-blue-600 border border-blue-400 text-white font-black text-[10px] px-2 py-1 rounded-xl shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30 pointer-events-none">
+                ${avatarData.speech || 'Let\'s Go! ✈️'}
+              </div>
+              <div class="w-14 h-14 bg-slate-950 rounded-xl border border-slate-700 flex items-center justify-center p-1 shadow-inner relative">
+                <canvas id="${canvasId}" class="w-12 h-12 image-render-pixel"></canvas>
+              </div>
+              <span class="text-[10px] font-black text-slate-400">${name}</span>
+            </div>
+          `;
+          // หน่วงเวลาเสี้ยววิเพื่อให้เบราเซอร์สร้างแท็กสัญลักษณ์ Canvas ในหน้าจอเสร็จแล้ววาดลายเส้นลงไปทันที
+          setTimeout(() => drawAvatarOnCanvas(canvasId, avatarData.dna), 5);
+        } else {
+          // หากเพื่อนมีชื่อในทริปแต่ยังไม่เคยเข้าไปเซ็ตเสื้อผ้าหน้าผมในห้องแต่งตัว
+          container.innerHTML += `
+            <div class="flex flex-col items-center gap-1 opacity-40 shrink-0">
+              <div class="w-14 h-14 bg-slate-800 rounded-xl border border-dashed border-slate-600 flex items-center justify-center text-xs font-bold text-slate-400">?</div>
+              <span class="text-[10px] font-medium text-slate-500">${name}</span>
+            </div>
+          `;
+        }
+      });
+    }
 
     function renderDayTabs(trip) {
       const container = document.getElementById('dayTabsContainer'); if(!container) return; container.innerHTML = '';
@@ -186,7 +297,6 @@
     function renderPlansAndExpenses() {
       const targetTrip = trips.find(t => t.id === currentOpenTripId); if (!targetTrip) return;
       
-      // 1. วาดไทม์ไลน์ฝั่งซ้าย
       const planContainer = document.getElementById('planTimelineContainer'); planContainer.innerHTML = '';
       const filteredPlans = (targetTrip.plans || []).filter(p => p.dayIndex === currentSelectedDayIndex);
       
@@ -195,12 +305,12 @@
         filteredPlans.sort((a, b) => a.time.localeCompare(b.time));
         filteredPlans.forEach(plan => {
           const mapBtn = plan.mapUrl ? `<a href="${plan.mapUrl}" target="_blank" class="text-[11px] bg-white border px-2 py-1 rounded-md text-blue-600 font-bold shadow-2xs">📍 แผนที่</a>` : '';
-          const adminControls = currentUserSession.role === 'admin' ? `<button onclick="openPlanModal('edit', '${plan.id}')" class="text-xs text-gray-400 p-0.5 cursor-pointer">✏️</button><button onclick="deletePlan('${plan.id}')" class="text-xs text-gray-400 p-0.5 cursor-pointer">🗑️</button>` : '';
+          // ✅ ปลดสิทธิ์ให้เพื่อนๆ ทั่วไปกดแก้ไขหรือลบกิจกรรมในไทม์ไลน์ได้อิสระ
+          const adminControls = `<button onclick="openPlanModal('edit', '${plan.id}')" class="text-xs text-gray-400 p-0.5 cursor-pointer">✏️</button><button onclick="deletePlan('${plan.id}')" class="text-xs text-gray-400 p-0.5 cursor-pointer">🗑️</button>`;
           planContainer.innerHTML += `<div class="flex items-start gap-3 relative pl-2"><div class="w-6 h-6 rounded-full bg-blue-600 border-4 border-white z-10"></div><div class="bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 flex-1 flex justify-between items-center"><div class="truncate max-w-[70%]"><span class="text-xs font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md mr-1">${plan.time}</span><span class="text-sm font-semibold text-gray-800">${plan.title}</span></div><div class="flex items-center gap-1">${mapBtn} ${adminControls}</div></div></div>`;
         });
       }
 
-      // 2. วาดบิลค่าใช้จ่ายฝั่งขวา
       const expenseContainer = document.getElementById('expenseListContainer'); expenseContainer.innerHTML = '';
       let totalSum = 0; let balances = {}; targetTrip.memberList.forEach(m => balances[m] = 0);
 
@@ -225,7 +335,6 @@
         summaryContainer.innerHTML += `<div class="p-2 rounded-xl flex flex-col ${colorClass}"><span class="font-bold truncate">${person}</span><span class="font-bold text-[10px]">${text}</span></div>`;
       }
 
-      // ระบบวิเคราะห์คำนวณจับคู่โอนเงิน
       const debtContainer = document.getElementById('debtClearInstructionsContainer'); debtContainer.innerHTML = '';
       let debtors = [], creditors = [];
       for (let person in balances) {
@@ -246,3 +355,88 @@
     }
 
     window.openPlanModal = function(mode, planId = null) {
+      const targetTrip = trips.find(t => t.id === currentOpenTripId); document.getElementById('planModal').classList.remove('hidden');
+      const daySelect = document.getElementById('planDaySelect'); daySelect.innerHTML = '';
+      calculateTotalDaysList(targetTrip.start, targetTrip.end).forEach((dStr, idx) => { daySelect.innerHTML += `<option value="${idx}">วันที่ ${idx + 1} (${dStr.substring(5)})</option>`; });
+      daySelect.value = currentSelectedDayIndex;
+      if (mode === 'create') {
+        document.getElementById('editPlanId').value = ''; document.getElementById('planTime').value = '';
+        document.getElementById('planTitle').value = ''; document.getElementById('planMapUrl').value = '';
+      } else {
+        const plan = targetTrip.plans.find(p => p.id === planId);
+        if (plan) {
+          document.getElementById('editPlanId').value = plan.id; document.getElementById('planDaySelect').value = plan.dayIndex;
+          document.getElementById('planTime').value = plan.time; document.getElementById('planTitle').value = plan.title;
+          document.getElementById('planMapUrl').value = plan.mapUrl || '';
+        }
+      }
+    };
+    window.closePlanModal = function() { document.getElementById('planModal').classList.add('hidden'); };
+
+    window.handlePlanSubmit = async function(event) {
+      event.preventDefault(); const targetTrip = trips.find(t => t.id === currentOpenTripId);
+      const editId = document.getElementById('editPlanId').value; const targetDayIdx = parseInt(document.getElementById('planDaySelect').value);
+      const planData = { dayIndex: targetDayIdx, time: document.getElementById('planTime').value, title: document.getElementById('planTitle').value, mapUrl: document.getElementById('planMapUrl').value };
+      if (editId) { const idx = targetTrip.plans.findIndex(p => p.id === editId); if (idx !== -1) targetTrip.plans[idx] = { id: editId, ...planData }; } 
+      else { if (!targetTrip.plans) targetTrip.plans = []; targetTrip.plans.push({ id: 'plan-' + Date.now(), ...planData }); }
+      currentSelectedDayIndex = targetDayIdx; await saveTripsToFirebase(); renderDayTabs(targetTrip); closePlanModal();
+    };
+
+    window.deletePlan = async function(planId) {
+      const targetTrip = trips.find(t => t.id === currentOpenTripId); targetTrip.plans = targetTrip.plans.filter(p => p.id !== planId); await saveTripsToFirebase();
+    };
+
+    window.openExpenseModal = function(mode, expenseId = null) {
+      const targetTrip = trips.find(t => t.id === currentOpenTripId); document.getElementById('expenseModal').classList.remove('hidden');
+      const payerSelect = document.getElementById('expensePayerSelect'); payerSelect.innerHTML = '';
+      targetTrip.memberList.forEach(m => { payerSelect.innerHTML += `<option value="${m}">${m}</option>`; });
+      
+      if (currentUserSession) {
+        const matchedName = targetTrip.memberList.find(m => m.toLowerCase() === currentUserSession.name.toLowerCase()); if(matchedName) payerSelect.value = matchedName;
+      }
+      
+      const checkContainer = document.getElementById('splitMembersCheckboxContainer'); checkContainer.innerHTML = '';
+      if (mode === 'create') {
+        document.getElementById('editExpenseId').value = ''; document.getElementById('expenseTitle').value = '';
+        document.getElementById('expenseAmount').value = ''; document.getElementById('expenseReceiptUrl').value = '';
+        targetTrip.memberList.forEach(m => { checkContainer.innerHTML += `<label class="flex items-center gap-1 bg-white p-1 rounded-lg border border-slate-200"><input type="checkbox" name="splitShareMembers" value="${m}" checked class="w-3.5 h-3.5"> <span class="truncate">${m}</span></label>`; });
+      } else {
+        const exp = targetTrip.expenses.find(e => e.id === expenseId);
+        if (exp) {
+          document.getElementById('editExpenseId').value = exp.id; payerSelect.value = exp.payer;
+          document.getElementById('expenseTitle').value = exp.title; document.getElementById('expenseAmount').value = exp.amount;
+          document.getElementById('expenseReceiptUrl').value = exp.receiptUrl || '';
+          targetTrip.memberList.forEach(m => {
+            const isChecked = exp.splitBetween.includes(m) ? 'checked' : '';
+            checkContainer.innerHTML += `<label class="flex items-center gap-1 bg-white p-1 rounded-lg border border-slate-200"><input type="checkbox" name="splitShareMembers" value="${m}" ${isChecked} class="w-3.5 h-3.5"> <span class="truncate">${m}</span></label>`;
+          });
+        }
+      }
+    };
+    window.closeExpenseModal = function() { document.getElementById('expenseModal').classList.add('hidden'); };
+
+    window.handleExpenseSubmit = async function(event) {
+      event.preventDefault(); const targetTrip = trips.find(t => t.id === currentOpenTripId);
+      const editId = document.getElementById('editExpenseId').value; const checkedBoxes = document.querySelectorAll('input[name="splitShareMembers"]:checked');
+      let chosenMembers = Array.from(checkedBoxes).map(cb => cb.value); if(chosenMembers.length === 0) chosenMembers = [...targetTrip.memberList];
+      const expenseData = { payer: document.getElementById('expensePayerSelect').value, title: document.getElementById('expenseTitle').value, amount: parseFloat(document.getElementById('expenseAmount').value) || 0, receiptUrl: document.getElementById('expenseReceiptUrl').value, splitBetween: chosenMembers };
+      if (editId) { const idx = targetTrip.expenses.findIndex(e => e.id === editId); if (idx !== -1) targetTrip.expenses[idx] = { id: editId, ...expenseData }; } 
+      else { if (!targetTrip.expenses) targetTrip.expenses = []; targetTrip.expenses.push({ id: 'exp-' + Date.now(), ...expenseData }); }
+      await saveTripsToFirebase(); closeExpenseModal();
+    };
+
+    window.deleteExpense = async function(expenseId) {
+      const targetTrip = trips.find(t => t.id === currentOpenTripId); targetTrip.expenses = targetTrip.expenses.filter(e => e.id !== expenseId); await saveTripsToFirebase();
+    };
+
+    window.copyLineSummary = function() {
+      const targetTrip = trips.find(t => t.id === currentOpenTripId); let textSummary = `📝 รายงานสรุปบัญชีทริป: ${targetTrip.name}\n━━━━━━━━━━━━━━━━━━━━\n`;
+      const lines = document.querySelectorAll('#debtClearInstructionsContainer div');
+      if(lines.length === 0 || document.querySelector('#debtClearInstructionsContainer p')) { textSummary += `ทุกคนแชร์เงินเท่ากันลงตัวพอดี ไม่มีหนี้ค้างกองกลางจ้า! 🎉\n`; } 
+      else { textSummary += `📌 สรุปเส้นทางจับคู่โอนเงินเคลียร์หนี้:\n`; lines.forEach(el => { textSummary += `• ${el.innerText}\n`; }); }
+      textSummary += `━━━━━━━━━━━━━━━━━━━━\nสรุปยอดหนี้อัตโนมัติผ่านแอปกลุ่ม GangTrip ✈️`;
+      navigator.clipboard.writeText(textSummary).then(() => { alert('ก๊อปปี้สรุปหนี้เข้า LINE เรียบร้อย! 🤩'); });
+    };
+  </script>
+</body>
+</html>

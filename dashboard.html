@@ -15,8 +15,11 @@
         <span class="text-xl font-bold text-gray-900">GangTrip</span>
       </div>
       <div class="flex items-center gap-3">
+        <button onclick="window.location.href='avatar-builder.html'" class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-xl shadow-xs cursor-pointer flex items-center gap-1">
+          🎨 ห้องแต่งตัวอวตาร
+        </button>
         <button id="adminPanelBtn" onclick="openAdminModal()" class="hidden text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold px-3 py-2 rounded-xl shadow-xs cursor-pointer">
-          👑 จัดการสิทธิ์ & พาสเวิร์ดเพื่อน
+          👑 แผงควบคุมแอดมิน
         </button>
         <div class="text-right hidden sm:block">
           <p id="navUserDisplayName" class="text-sm font-semibold text-gray-700">Loading...</p>
@@ -33,7 +36,7 @@
         <h2 class="text-2xl font-bold text-gray-900">ทริปบนระบบคลาวด์</h2>
         <p class="text-sm text-gray-500">ซิงค์ข้อมูลแผนเดินทางและแชร์บิลแบบเรียลไทม์</p>
       </div>
-      <button id="createTripMainBtn" onclick="openModal('create')" class="hidden bg-blue-600 text-white font-medium px-5 py-2.5 rounded-xl shadow-sm hover:bg-blue-700 transition-all text-sm flex items-center gap-2 cursor-pointer">
+      <button id="createTripMainBtn" onclick="openModal('create')" class="bg-blue-600 text-white font-medium px-5 py-2.5 rounded-xl shadow-sm hover:bg-blue-700 transition-all text-sm flex items-center gap-2 cursor-pointer">
         <span class="text-lg font-bold">+</span> สร้างทริปใหม่
       </button>
     </div>
@@ -115,35 +118,28 @@
     let userRegistry = [];
     let trips = [];
     
-    // บังคับเช็คระบบความปลอดภัย ดักเคสเพื่อนพยายามเปิดเข้ามาหน้านี้ตรงๆ โดยไม่ใส่รหัสผ่านผ่านประตูหน้า
     let currentUserSession = JSON.parse(localStorage.getItem('gang_current_session'));
     if (!currentUserSession) {
       window.location.href = "index.html";
     }
 
-    // สตรีมดักจับพาสเวิร์ดเพื่อนแบบเรียลไทม์
     onSnapshot(doc(db, "gang_system", "passcodes"), (docSnap) => {
       if (docSnap.exists()) { userRegistry = docSnap.data().users || []; }
       renderAdminUserTable();
     });
 
-    // สตรีมดักจับข้อมูลทริปทั้งหมดแบบเรียลไทม์
     onSnapshot(doc(db, "gang_system", "trips_data"), (docSnap) => {
       if (docSnap.exists()) { trips = docSnap.data().list || []; }
       renderTrips();
     });
 
-    // ฟังก์ชันจัดการสิทธิ์การมองเห็นปุ่มตาม Role
     function applyRoleAccess() {
       document.getElementById('navUserDisplayName').innerText = currentUserSession.name;
       document.getElementById('navUserRoleBadge').innerText = currentUserSession.role === 'admin' ? '👑 ผู้ควบคุมหลัก' : '👥 เพื่อนร่วมแก๊ง';
       
       const adminBtn = document.getElementById('adminPanelBtn');
-      const createTripBtn = document.getElementById('createTripMainBtn');
-
       if (currentUserSession.role === 'admin') {
         if(adminBtn) adminBtn.classList.remove('hidden');
-        if(createTripBtn) createTripBtn.classList.remove('hidden');
       }
     }
     applyRoleAccess();
@@ -158,7 +154,6 @@
     async function saveUserRegistryToFirebase() { await setDoc(doc(db, "gang_system", "passcodes"), { users: userRegistry }); }
     async function saveTripsToFirebase() { await setDoc(doc(db, "gang_system", "trips_data"), { list: trips }); }
 
-    // --- ฟังก์ชันของแผงแอดมินควบคุมพาสเวิร์ด ---
     window.openAdminModal = function() { document.getElementById('adminUserControlModal').classList.remove('hidden'); renderAdminUserTable(); };
     window.closeAdminModal = function() { document.getElementById('adminUserControlModal').classList.add('hidden'); };
 
@@ -187,9 +182,7 @@
       });
     }
 
-    // --- ฟังก์ชันควบคุมทริปการเดินทางหลัก ---
     window.openTripDetail = function(tripId) {
-      // เซฟจำไว้ในความจำเครื่องชั่วคราวว่า ยูสเซอร์กำลังจะเปิดเข้าดู ID ทริปอันนี้นะ
       localStorage.setItem('gang_current_trip_id', tripId);
       window.location.href = "trip-detail.html";
     };
@@ -221,7 +214,8 @@
     function renderTrips() {
       const container = document.getElementById('tripListContainer'); if(!container) return; container.innerHTML = '';
       trips.forEach(trip => {
-        const adminTripSettings = currentUserSession.role === 'admin' ? `<button onclick="openModal('edit', '${trip.id}'); event.stopPropagation();" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-1 rounded-md font-bold transition-all">⚙️ แก้ไขทริป</button>` : '';
+        // ✅ ปลดล็อกปุ่มแก้ไขทริปให้โอนสิทธิ์เปิดขึ้นแสดงผลให้ทุกคนกดเคลียร์ได้เลย
+        const adminTripSettings = `<button onclick="openModal('edit', '${trip.id}'); event.stopPropagation();" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-1 rounded-md font-bold transition-all">⚙️ แก้ไขทริป</button>`;
         container.innerHTML += `
           <div class="bg-white border border-gray-200 rounded-2xl shadow-xs overflow-hidden hover:shadow-md transition-all">
             <div class="h-24 bg-gradient-to-r from-blue-600 to-indigo-600 p-4 flex flex-col justify-between text-white">
