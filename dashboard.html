@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GangTrip - ทริปของฉัน</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+<body class="min-h-screen bg-slate-50 font-sans m-0 text-slate-800">
+
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-xs">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.reload()">
+        <span class="text-2xl">✈️</span>
+        <span class="text-xl font-bold text-gray-900">GangTrip</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="adminPanelBtn" onclick="openAdminModal()" class="hidden text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold px-3 py-2 rounded-xl shadow-xs cursor-pointer">
+          👑 จัดการสิทธิ์ & พาสเวิร์ดเพื่อน
+        </button>
+        <div class="text-right hidden sm:block">
+          <p id="navUserDisplayName" class="text-sm font-semibold text-gray-700">Loading...</p>
+          <p id="navUserRoleBadge" class="text-xs text-gray-400 font-bold">สิทธิ์การใช้งาน</p>
+        </div>
+        <button onclick="logoutGang()" class="w-10 h-10 rounded-full bg-slate-800 text-white flex items-center justify-center font-bold shadow-inner text-sm hover:bg-red-600 transition-colors cursor-pointer">D</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h2 class="text-2xl font-bold text-gray-900">ทริปบนระบบคลาวด์</h2>
+        <p class="text-sm text-gray-500">ซิงค์ข้อมูลแผนเดินทางและแชร์บิลแบบเรียลไทม์</p>
+      </div>
+      <button id="createTripMainBtn" onclick="openModal('create')" class="hidden bg-blue-600 text-white font-medium px-5 py-2.5 rounded-xl shadow-sm hover:bg-blue-700 transition-all text-sm flex items-center gap-2 cursor-pointer">
+        <span class="text-lg font-bold">+</span> สร้างทริปใหม่
+      </button>
+    </div>
+
+    <div id="tripListContainer" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </main>
+
+  <div id="adminUserControlModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden">
+      <div class="p-6 border-b border-gray-100 flex justify-between items-center bg-amber-500 text-white">
+        <h3 class="text-md font-bold">👑 ห้องควบคุมสิทธิ์พาสเวิร์ดเพื่อน</h3>
+        <button onclick="closeAdminModal()" class="text-white font-bold text-2xl cursor-pointer">×</button>
+      </div>
+      <div class="p-6 space-y-4">
+        <form onsubmit="handleCreateUserPasscode(event)" class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+          <p class="text-xs font-bold text-amber-700 uppercase">⚡ สร้าง/แก้ไข รหัสล็อกรายคน</p>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block text-[10px] font-bold text-gray-500 mb-0.5">ชื่อเพื่อน</label>
+              <input type="text" id="newFriendName" required placeholder="เช่น Mook" class="w-full border border-gray-300 rounded-lg p-1.5 text-xs bg-white">
+            </div>
+            <div>
+              <label class="block text-[10px] font-bold text-gray-500 mb-0.5">พาสเวิร์ด (เลข 4 หลัก)</label>
+              <input type="text" id="newFriendPass" required placeholder="เช่น 0001" maxlength="4" class="w-full border border-gray-300 rounded-lg p-1.5 text-xs bg-white text-center font-bold">
+            </div>
+          </div>
+          <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 rounded-lg text-xs cursor-pointer">บันทึกสิทธิ์ลง Firebase</button>
+        </form>
+        <div>
+          <p class="text-xs font-bold text-gray-400 uppercase mb-2">📋 รายชื่อผู้มีสิทธิ์ใช้งานตอนนี้</p>
+          <div id="adminUserTableContainer" class="space-y-1.5 max-h-[160px] overflow-y-auto"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="tripModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden">
+      <div class="p-6 border-b border-gray-100 flex justify-between items-center">
+        <h3 id="modalTitle" class="text-lg font-bold text-gray-900">สร้างทริป</h3>
+        <button onclick="closeModal()" class="text-gray-400 font-bold text-xl cursor-pointer">×</button>
+      </div>
+      <form onsubmit="handleFormSubmit(event)" class="p-6 space-y-4">
+        <input type="hidden" id="editTripId">
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">ชื่อทริปสุดเฟี้ยว</label>
+          <input type="text" id="tripName" required class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm">
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 uppercase mb-1">ไปที่ไหนกันดี</label>
+          <input type="text" id="tripDest" required class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm">
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">วันเริ่มเดินทาง</label>
+            <input type="date" id="startDate" required class="w-full border border-gray-300 rounded-xl px-2 py-1.5 text-sm">
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-gray-700 uppercase mb-1">วันเดินทางกลับ</label>
+            <input type="date" id="endDate" required class="w-full border border-gray-300 rounded-xl px-2 py-1.5 text-sm">
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-bold text-blue-600 uppercase mb-1">👥 รายชื่อเพื่อนร่วมทริป (คั่นด้วยเครื่องหมายจุลภาค ,)</label>
+          <input type="text" id="tripMembersInput" required placeholder="เดฟ, Mook, Pangpond, เอก" class="w-full border border-blue-300 bg-blue-50/30 rounded-xl px-3 py-2 text-sm">
+        </div>
+        <div class="flex gap-3 pt-4 border-t border-gray-100">
+          <button type="button" onclick="closeModal()" class="flex-1 bg-gray-100 py-2 rounded-xl text-sm cursor-pointer">ยกเลิก</button>
+          <button type="submit" id="submitBtn" class="flex-1 bg-blue-600 text-white py-2 rounded-xl text-sm cursor-pointer">บันทึกข้อมูล</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { db } from "./js/firebase-config.js";
+    import { doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    let userRegistry = [];
+    let trips = [];
+    
+    // บังคับเช็คระบบความปลอดภัย ดักเคสเพื่อนพยายามเปิดเข้ามาหน้านี้ตรงๆ โดยไม่ใส่รหัสผ่านผ่านประตูหน้า
+    let currentUserSession = JSON.parse(localStorage.getItem('gang_current_session'));
+    if (!currentUserSession) {
+      window.location.href = "index.html";
+    }
+
+    // สตรีมดักจับพาสเวิร์ดเพื่อนแบบเรียลไทม์
+    onSnapshot(doc(db, "gang_system", "passcodes"), (docSnap) => {
+      if (docSnap.exists()) { userRegistry = docSnap.data().users || []; }
+      renderAdminUserTable();
+    });
+
+    // สตรีมดักจับข้อมูลทริปทั้งหมดแบบเรียลไทม์
+    onSnapshot(doc(db, "gang_system", "trips_data"), (docSnap) => {
+      if (docSnap.exists()) { trips = docSnap.data().list || []; }
+      renderTrips();
+    });
+
+    // ฟังก์ชันจัดการสิทธิ์การมองเห็นปุ่มตาม Role
+    function applyRoleAccess() {
+      document.getElementById('navUserDisplayName').innerText = currentUserSession.name;
+      document.getElementById('navUserRoleBadge').innerText = currentUserSession.role === 'admin' ? '👑 ผู้ควบคุมหลัก' : '👥 เพื่อนร่วมแก๊ง';
+      
+      const adminBtn = document.getElementById('adminPanelBtn');
+      const createTripBtn = document.getElementById('createTripMainBtn');
+
+      if (currentUserSession.role === 'admin') {
+        if(adminBtn) adminBtn.classList.remove('hidden');
+        if(createTripBtn) createTripBtn.classList.remove('hidden');
+      }
+    }
+    applyRoleAccess();
+
+    window.logoutGang = function() {
+      if (confirm('ต้องการออกจากระบบใช่ไหมครับ?')) {
+        localStorage.removeItem('gang_current_session');
+        window.location.href = "index.html";
+      }
+    };
+
+    async function saveUserRegistryToFirebase() { await setDoc(doc(db, "gang_system", "passcodes"), { users: userRegistry }); }
+    async function saveTripsToFirebase() { await setDoc(doc(db, "gang_system", "trips_data"), { list: trips }); }
+
+    // --- ฟังก์ชันของแผงแอดมินควบคุมพาสเวิร์ด ---
+    window.openAdminModal = function() { document.getElementById('adminUserControlModal').classList.remove('hidden'); renderAdminUserTable(); };
+    window.closeAdminModal = function() { document.getElementById('adminUserControlModal').classList.add('hidden'); };
+
+    window.handleCreateUserPasscode = async function(event) {
+      event.preventDefault();
+      const fName = document.getElementById('newFriendName').value.trim();
+      const fPass = document.getElementById('newFriendPass').value.trim();
+      if (fName && fPass) {
+        const idx = userRegistry.findIndex(u => u.name.toLowerCase() === fName.toLowerCase());
+        if (idx !== -1) userRegistry[idx].passcode = fPass;
+        else userRegistry.push({ name: fName, passcode: fPass });
+        await saveUserRegistryToFirebase();
+        document.getElementById('newFriendName').value = ''; document.getElementById('newFriendPass').value = '';
+        alert(`บันทึกสิทธิ์ของ ${fName} ลง Firebase เรียบร้อย!`);
+      }
+    };
+
+    window.deleteUserPasscode = async function(name) {
+      if (confirm(`ลบสิทธิ์ของ ${name} ใช่ไหม?`)) { userRegistry = userRegistry.filter(u => u.name !== name); await saveUserRegistryToFirebase(); }
+    };
+
+    function renderAdminUserTable() {
+      const table = document.getElementById('adminUserTableContainer'); if(!table) return; table.innerHTML = '';
+      userRegistry.forEach(u => {
+        table.innerHTML += `<div class="flex justify-between items-center bg-slate-100 p-2 rounded-xl text-xs"><div><span class="font-bold text-slate-700 mr-2">👤 ${u.name}</span><span class="font-mono text-blue-600 bg-white px-1.5 py-0.5 border rounded-md">รหัส: ${u.passcode}</span></div><button onclick="deleteUserPasscode('${u.name}')" class="text-red-500 font-bold px-1 cursor-pointer">🗑️</button></div>`;
+      });
+    }
+
+    // --- ฟังก์ชันควบคุมทริปการเดินทางหลัก ---
+    window.openTripDetail = function(tripId) {
+      // เซฟจำไว้ในความจำเครื่องชั่วคราวว่า ยูสเซอร์กำลังจะเปิดเข้าดู ID ทริปอันนี้นะ
+      localStorage.setItem('gang_current_trip_id', tripId);
+      window.location.href = "trip-detail.html";
+    };
+
+    window.openModal = function(mode, tripId = null) {
+      document.getElementById('tripModal').classList.remove('hidden');
+      if (mode === 'create') {
+        document.getElementById('editTripId').value = ''; document.getElementById('tripMembersInput').value = 'เดฟ, Mook, Pangpond, เอก'; document.querySelector('#tripModal form').reset();
+      } else {
+        const targetTrip = trips.find(t => t.id === tripId);
+        if (targetTrip) {
+          document.getElementById('editTripId').value = targetTrip.id; document.getElementById('tripName').value = targetTrip.name;
+          document.getElementById('tripDest').value = targetTrip.dest; document.getElementById('startDate').value = targetTrip.start;
+          document.getElementById('endDate').value = targetTrip.end; document.getElementById('tripMembersInput').value = targetTrip.memberList.join(', ');
+        }
+      }
+    };
+    window.closeModal = function() { document.getElementById('tripModal').classList.add('hidden'); };
+
+    window.handleFormSubmit = async function(event) {
+      event.preventDefault(); const editId = document.getElementById('editTripId').value;
+      const parsedMemberList = document.getElementById('tripMembersInput').value.split(',').map(m => m.trim()).filter(m => m.length > 0);
+      const tripData = { name: document.getElementById('tripName').value, dest: document.getElementById('tripDest').value, start: document.getElementById('startDate').value, end: document.getElementById('endDate').value, memberList: parsedMemberList };
+      if (editId) { const index = trips.findIndex(t => t.id === editId); if (index !== -1) trips[index] = { ...trips[index], ...tripData }; } 
+      else { trips.push({ id: 'trip-' + Date.now(), ...tripData, plans: [], expenses: [] }); }
+      await saveTripsToFirebase(); closeModal();
+    };
+
+    function renderTrips() {
+      const container = document.getElementById('tripListContainer'); if(!container) return; container.innerHTML = '';
+      trips.forEach(trip => {
+        const adminTripSettings = currentUserSession.role === 'admin' ? `<button onclick="openModal('edit', '${trip.id}'); event.stopPropagation();" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-1 rounded-md font-bold transition-all">⚙️ แก้ไขทริป</button>` : '';
+        container.innerHTML += `
+          <div class="bg-white border border-gray-200 rounded-2xl shadow-xs overflow-hidden hover:shadow-md transition-all">
+            <div class="h-24 bg-gradient-to-r from-blue-600 to-indigo-600 p-4 flex flex-col justify-between text-white">
+              <span class="text-[10px] bg-white/20 px-2 py-0.5 rounded-full self-start">เรียบร้อยบนคลาวด์ ☁️</span>
+              <h3 class="text-md font-bold truncate">${trip.name}</h3>
+            </div>
+            <div class="p-4">
+              <p class="text-xs text-gray-400">📍 ${trip.dest}</p>
+              <p class="text-xs text-gray-500 mb-2">📅 ${trip.start} ถึง ${trip.end}</p>
+              <div class="flex justify-between items-center pt-2 border-t border-gray-100 text-xs">
+                <span class="text-gray-500 truncate max-w-[50%]">👥 เพื่อน: ${trip.memberList.join(', ')}</span>
+                <div class="flex gap-1 items-center">${adminTripSettings} <button onclick="openTripDetail('${trip.id}')" class="font-bold text-blue-600 cursor-pointer hover:underline">ดูแผน →</button></div>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+    }
+  </script>
+</body>
+</html>
