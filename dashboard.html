@@ -15,11 +15,11 @@
         <span class="text-xl font-bold text-gray-900">GangTrip</span>
       </div>
       <div class="flex items-center gap-3">
-        <button onclick="window.location.href='avatar-builder.html'" class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-xl shadow-xs cursor-pointer flex items-center gap-1">
+        <button onclick="window.location.href='avatar-builder.html'" class="text-xs bg-blue-600 hover:bg-blue-700 text-white font-bold px-3 py-2 rounded-xl shadow-xs cursor-pointer flex items-center gap-1 transition-all">
           🎨 ห้องแต่งตัวอวตาร
         </button>
-        <button id="adminPanelBtn" onclick="openAdminModal()" class="hidden text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold px-3 py-2 rounded-xl shadow-xs cursor-pointer">
-          👑 แผงควบคุมแอดมิน
+        <button id="adminPanelBtn" onclick="openAdminModal()" class="hidden text-xs bg-amber-500 hover:bg-amber-600 text-white font-bold px-3 py-2 rounded-xl shadow-xs cursor-pointer transition-all">
+          👑 จัดการสิทธิ์เพื่อน
         </button>
         <div class="text-right hidden sm:block">
           <p id="navUserDisplayName" class="text-sm font-semibold text-gray-700">Loading...</p>
@@ -34,7 +34,7 @@
     <div class="flex justify-between items-center mb-8">
       <div>
         <h2 class="text-2xl font-bold text-gray-900">ทริปบนระบบคลาวด์</h2>
-        <p class="text-sm text-gray-500">ซิงค์ข้อมูลแผนเดินทางและแชร์บิลแบบเรียลไทม์</p>
+        <p class="text-sm text-gray-500">ซิงค์ข้อมูลแผนเดินทางและแชร์บิลแบบเรียลไทม์ร่วมกับทุกคนในแก๊ง</p>
       </div>
       <button id="createTripMainBtn" onclick="openModal('create')" class="bg-blue-600 text-white font-medium px-5 py-2.5 rounded-xl shadow-sm hover:bg-blue-700 transition-all text-sm flex items-center gap-2 cursor-pointer">
         <span class="text-lg font-bold">+</span> สร้างทริปใหม่
@@ -55,7 +55,7 @@
           <p class="text-xs font-bold text-amber-700 uppercase">⚡ สร้าง/แก้ไข รหัสล็อกรายคน</p>
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block text-[10px] font-bold text-gray-500 mb-0.5">ชื่อเพื่อน</label>
+              <label class="block text-[10px] font-bold text-gray-500 mb-0.5">ชื่อเพื่อน (ต้องตรงกับชื่อในทริป)</label>
               <input type="text" id="newFriendName" required placeholder="เช่น Mook" class="w-full border border-gray-300 rounded-lg p-1.5 text-xs bg-white">
             </div>
             <div>
@@ -118,26 +118,31 @@
     let userRegistry = [];
     let trips = [];
     
+    // ดึงข้อมูลการเข้าใช้งานเครื่องปัจจุบัน
     let currentUserSession = JSON.parse(localStorage.getItem('gang_current_session'));
     if (!currentUserSession) {
       window.location.href = "index.html";
     }
 
+    // ติดตามสถานะฐานข้อมูลรหัสผ่านเพื่อนๆ บนคลาวด์แบบเรียลไทม์
     onSnapshot(doc(db, "gang_system", "passcodes"), (docSnap) => {
       if (docSnap.exists()) { userRegistry = docSnap.data().users || []; }
       renderAdminUserTable();
     });
 
+    // ติดตามสถานะรายชื่อทริปทั้งหมดบนคลาวด์แบบเรียลไทม์
     onSnapshot(doc(db, "gang_system", "trips_data"), (docSnap) => {
       if (docSnap.exists()) { trips = docSnap.data().list || []; }
       renderTrips();
     });
 
+    // ตรวจเช็คสิทธิ์แสดงหน้าต่างควบคุม
     function applyRoleAccess() {
       document.getElementById('navUserDisplayName').innerText = currentUserSession.name;
       document.getElementById('navUserRoleBadge').innerText = currentUserSession.role === 'admin' ? '👑 ผู้ควบคุมหลัก' : '👥 เพื่อนร่วมแก๊ง';
       
       const adminBtn = document.getElementById('adminPanelBtn');
+      // แผงรหัสผ่านเพื่อนล็อกไว้ให้แอดมินคุมเท่านั้น
       if (currentUserSession.role === 'admin') {
         if(adminBtn) adminBtn.classList.remove('hidden');
       }
@@ -167,12 +172,12 @@
         else userRegistry.push({ name: fName, passcode: fPass });
         await saveUserRegistryToFirebase();
         document.getElementById('newFriendName').value = ''; document.getElementById('newFriendPass').value = '';
-        alert(`บันทึกสิทธิ์ของ ${fName} ลง Firebase เรียบร้อย!`);
+        alert(`บันทึกสิทธิ์ของ ${fName} เรียบร้อยแล้วบนคลาวด์!`);
       }
     };
 
     window.deleteUserPasscode = async function(name) {
-      if (confirm(`ลบสิทธิ์ของ ${name} ใช่ไหม?`)) { userRegistry = userRegistry.filter(u => u.name !== name); await saveUserRegistryToFirebase(); }
+      if (confirm(`ลบสิทธิ์การเข้าแอปของ ${name} ใช่ไหม?`)) { userRegistry = userRegistry.filter(u => u.name !== name); await saveUserRegistryToFirebase(); }
     };
 
     function renderAdminUserTable() {
@@ -214,8 +219,8 @@
     function renderTrips() {
       const container = document.getElementById('tripListContainer'); if(!container) return; container.innerHTML = '';
       trips.forEach(trip => {
-        // ✅ ปลดล็อกปุ่มแก้ไขทริปให้โอนสิทธิ์เปิดขึ้นแสดงผลให้ทุกคนกดเคลียร์ได้เลย
-        const adminTripSettings = `<button onclick="openModal('edit', '${trip.id}'); event.stopPropagation();" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-1 rounded-md font-bold transition-all">⚙️ แก้ไขทริป</button>`;
+        // 🔓 ปลดล็อก: เอาเงื่อนไขล็อกสิทธิ์ Admin ออก เพื่อให้ปุ่มฟันเฟือง "⚙️ แก้ไขทริป" แสดงขึ้นมาให้เพื่อนๆ ทุกคนกดอัปเดตได้อิสระตามต้องการ
+        const adminTripSettings = `<button onclick="openModal('edit', '${trip.id}'); event.stopPropagation();" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-600 px-2 py-1 rounded-md font-bold transition-all cursor-pointer">⚙️ แก้ไขทริป</button>`;
         container.innerHTML += `
           <div class="bg-white border border-gray-200 rounded-2xl shadow-xs overflow-hidden hover:shadow-md transition-all">
             <div class="h-24 bg-gradient-to-r from-blue-600 to-indigo-600 p-4 flex flex-col justify-between text-white">

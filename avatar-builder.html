@@ -3,13 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GangTrip - ห้องแต่งตัว Pixel Avatar</title>
+  <title>GangTrip - เลือกตัวละคร</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <style>
-    .pixel-board {
-      image-rendering: pixelated;
-      image-rendering: crisp-edges;
-    }
+  <style> 
+    /* คุมลายเส้นให้คมชัดสไตล์ Pixel Art */
+    .pixel-board { image-rendering: pixelated; image-rendering: crisp-edges; } 
   </style>
 </head>
 <body class="min-h-screen bg-slate-900 font-sans m-0 text-slate-100 bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px]">
@@ -20,65 +18,38 @@
         ← กลับหน้าแดชบอร์ด
       </button>
       <div class="text-center">
-        <h1 class="text-md font-black tracking-wider text-amber-400 uppercase">🕹️ CHARACTER CREATOR</h1>
-        <p id="builderUserTitle" class="text-xs text-slate-400 font-bold">👤 กำลังแต่งตัวละคร: ...</p>
+        <h1 class="text-md font-black tracking-wider text-amber-400 uppercase">🕹️ CHARACTER SELECT</h1>
+        <p id="builderUserTitle" class="text-xs text-slate-400 font-bold">👤 ผู้เล่น: ...</p>
       </div>
       <span class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-1 rounded-md font-mono">LIVE CLOUD</span>
     </div>
   </header>
 
   <main class="max-w-4xl w-full mx-auto px-4 py-8 grid grid-cols-1 md:grid-cols-12 gap-8">
-    <div class="md:col-span-5 flex flex-col items-center justify-center bg-slate-950 p-6 rounded-2xl border border-slate-800 shadow-2xl relative overflow-hidden">
+    <div class="md:col-span-5 flex flex-col items-center justify-center bg-slate-950 p-6 rounded-2xl border border-slate-800 shadow-2xl relative">
       <div class="absolute inset-0 bg-gradient-to-t from-blue-950/30 to-transparent pointer-events-none"></div>
       
       <div class="w-48 h-48 bg-slate-900 border-4 border-slate-700 rounded-xl relative overflow-hidden flex items-center justify-center shadow-inner mb-6">
         <div class="absolute bottom-4 w-24 h-4 bg-black/40 rounded-full blur-xs"></div>
-        
-        <div class="w-32 h-32 relative pixel-board">
-          <canvas id="layer_skin" class="absolute inset-0 w-full h-full z-10"></canvas>
-          <canvas id="layer_eyes" class="absolute inset-0 w-full h-full z-20"></canvas>
-          <canvas id="layer_cloth" class="absolute inset-0 w-full h-full z-30"></canvas>
-          <canvas id="layer_hair" class="absolute inset-0 w-full h-full z-40"></canvas>
-          <canvas id="layer_glasses" class="absolute inset-0 w-full h-full z-50"></canvas>
+        <div class="w-32 h-32 relative">
+          <div id="previewAvatar" class="absolute inset-0 w-full h-full pixel-board" style="background-repeat: no-repeat; background-position: 0% 0;"></div>
         </div>
       </div>
 
       <div class="w-full space-y-2 z-10">
-        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">💬 คำพูดประจำตัวละครเมื่อเพื่อนเปิดมาเจอ</label>
-        <div class="relative">
-          <input type="text" id="avatarSpeechInput" maxlength="30" placeholder="Let's Go! ไปเที่ยวกันนั่นแหละ..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-center font-bold text-white focus:outline-none focus:border-blue-500">
-        </div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">💬 คำพูดทักทายเพื่อนๆ</label>
+        <input type="text" id="avatarSpeechInput" maxlength="30" placeholder="Let's Go! ลุยยยย..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2.5 text-xs text-center font-bold text-white focus:outline-none focus:border-blue-500">
       </div>
     </div>
 
-    <div class="md:col-span-7 bg-slate-950/50 p-6 rounded-2xl border border-slate-800 shadow-xl space-y-6">
-      <h2 class="text-sm font-bold text-slate-300 uppercase tracking-widest pb-2 border-b border-slate-800">🛠️ คลังชิ้นส่วนเครื่องแต่งกาย (Pixel Wardrobe)</h2>
+    <div class="md:col-span-7 bg-slate-950/50 p-6 rounded-2xl border border-slate-800 shadow-xl flex flex-col">
+      <h2 class="text-sm font-bold text-slate-300 uppercase tracking-widest pb-2 border-b border-slate-800 mb-4">🛠️ คลังตัวละคร (เลือกอวตารของคุณ)</h2>
       
-      <div class="space-y-4">
-        <div>
-          <label class="block text-xs font-bold text-slate-400 mb-2">🎨 เฉดสีสกินผิวหน้า</label>
-          <div id="option_skin" class="flex gap-2"></div>
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-slate-400 mb-2">💇‍♂️ สไตล์ทรงผมประจำตัว</label>
-          <div id="option_hair" class="flex gap-2"></div>
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-slate-400 mb-2">🕶️ แว่นตาเก๋ๆ และเครื่องประดับ</label>
-          <div id="option_glasses" class="flex gap-2"></div>
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-slate-400 mb-2">👕 แฟชั่นชุดเสื้อผ้า</label>
-          <div id="option_cloth" class="flex gap-2"></div>
-        </div>
-      </div>
+      <div id="characterGrid" class="grid grid-cols-3 sm:grid-cols-4 gap-3 flex-1 overflow-y-auto mb-4 content-start"></div>
 
-      <div class="pt-4 border-t border-slate-800 flex gap-3">
-        <button onclick="randomizeAvatar()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold px-4 py-3 rounded-xl text-xs transition-all active:scale-95 cursor-pointer">
-          🎲 สุ่มตัวละคร
-        </button>
-        <button onclick="saveAvatarDNA()" class="flex-1 bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 hover:to-teal-600 text-white font-extrabold py-3 rounded-xl text-xs tracking-wider shadow-lg shadow-blue-500/10 transition-all active:scale-98 cursor-pointer">
-          💾 บันทึกอวตารลงคลาวด์ Firebase →
+      <div class="pt-4 border-t border-slate-800 mt-auto">
+        <button onclick="saveAvatarDNA()" class="w-full bg-gradient-to-r from-blue-600 to-teal-500 hover:from-blue-700 text-white font-extrabold py-3 rounded-xl text-xs tracking-wider shadow-lg transition-all active:scale-98 cursor-pointer">
+          💾 ยืนยันตัวละครลง Firebase
         </button>
       </div>
     </div>
@@ -89,128 +60,109 @@
     import { doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     let currentUserSession = JSON.parse(localStorage.getItem('gang_current_session'));
-    if (!currentUserSession) { window.location.href = "index.html"; }
-    document.getElementById('builderUserTitle').innerText = `👤 กำลังแต่งตัวละคร: ${currentUserSession.name}`;
+    if (!currentUserSession) window.location.href = "index.html";
+    document.getElementById('builderUserTitle').innerText = `👤 ผู้เล่น: ${currentUserSession.name}`;
 
-    let avatarDNA = { skin: 0, hair: 0, glasses: 0, cloth: 0 };
+    let selectedCharIndex = 0;
+    let globalFrameTick = 0;
 
-    const configData = {
-      skin: ["#ffdbac", "#f1c27d", "#e0ac69", "#c68642", "#8d5524"],
-      hair: [
-        { name: "สกินเฮด/ไม่มีผม", color: "transparent", draw: null },
-        { name: "ผมสั้นมาดเข้ม", color: "#2d3748", type: "short" },
-        { name: "ผมยาวสุดเฟี้ยว", color: "#e53e3e", type: "long" },
-        { name: "ทรงโมฮอคสายลุย", color: "#ecc94b", type: "mohawk" },
-        { name: "ผมหน้าม้าเกาหลี", color: "#4a5568", type: "fringe" }
-      ],
-      glasses: [
-        { name: "ไม่ใส่แว่น", color: "transparent" },
-        { name: "แว่นสายตากลม", color: "#3182ce" },
-        { name: "แว่นกันแดดดำสุดเท่", color: "#1a202c" }
-      ],
-      cloth: [
-        { name: "เสื้อยืดขาวมินิมอล", color: "#ffffff" },
-        { name: "เสื้อเชิ้ตลายยีนส์", color: "#2b6cb0" },
-        { name: "เสื้อแจ็คเก็ตแดงแรงฤทธิ์", color: "#e53e3e" },
-        { name: "เสื้อฮู้ดส้มสดใส", color: "#dd6b20" }
-      ]
-    };
-
-    function drawPixelLayer(layerId, drawFunc) {
-      const canvas = document.getElementById(layerId); if(!canvas) return;
-      const ctx = canvas.getContext('2d');
-      canvas.width = 32; canvas.height = 32;
-      ctx.clearRect(0, 0, 32, 32);
-      if (drawFunc) drawFunc(ctx);
-    }
-
-    function renderAllLayers() {
-      drawPixelLayer('layer_skin', (ctx) => {
-        ctx.fillStyle = configData.skin[avatarDNA.skin];
-        ctx.fillRect(10, 12, 12, 11); ctx.fillRect(12, 23, 8, 3);
-      });
-
-      drawPixelLayer('layer_eyes', (ctx) => {
-        ctx.fillStyle = "#000000"; ctx.fillRect(12, 16, 2, 2); ctx.fillRect(18, 16, 2, 2);
-        ctx.fillStyle = "#ffffff"; ctx.fillRect(13, 16, 1, 1); ctx.fillRect(19, 16, 1, 1);
-        ctx.fillStyle = "#ff6b6b"; ctx.fillRect(14, 20, 4, 1);
-      });
-
-      drawPixelLayer('layer_hair', (ctx) => {
-        const hairItem = configData.hair[avatarDNA.hair];
-        if (!hairItem || hairItem.color === 'transparent') return;
-        ctx.fillStyle = hairItem.color;
-        if (hairItem.type === "short") { ctx.fillRect(9, 10, 14, 4); ctx.fillRect(9, 11, 2, 5); ctx.fillRect(21, 11, 2, 5); } 
-        else if (hairItem.type === "long") { ctx.fillRect(9, 10, 14, 5); ctx.fillRect(8, 12, 3, 12); ctx.fillRect(21, 12, 3, 12); } 
-        else if (hairItem.type === "mohawk") { ctx.fillRect(14, 6, 4, 7); ctx.fillRect(15, 4, 2, 3); } 
-        else if (hairItem.type === "fringe") { ctx.fillRect(9, 10, 14, 4); ctx.fillRect(10, 14, 12, 3); ctx.fillRect(13, 17, 3, 1); }
-      });
-
-      drawPixelLayer('layer_cloth', (ctx) => {
-        const clothItem = configData.cloth[avatarDNA.cloth];
-        ctx.fillStyle = clothItem.color;
-        ctx.fillRect(8, 25, 16, 7); ctx.fillRect(6, 25, 2, 4); ctx.fillRect(24, 25, 2, 4);
-      });
-
-      drawPixelLayer('layer_glasses', (ctx) => {
-        const glassItem = configData.glasses[avatarDNA.glasses];
-        if (!glassItem || glassItem.color === 'transparent') return;
-        ctx.fillStyle = glassItem.color;
-        ctx.fillRect(11, 15, 4, 3); ctx.fillRect(17, 15, 4, 3); ctx.fillRect(15, 16, 2, 1);
-        ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.fillRect(12, 16, 1, 1); ctx.fillRect(18, 16, 1, 1);
+    // 🎯 1. กำหนดจำนวนไฟล์ตัวละครที่มีทั้งหมด (ต้องแก้ให้ตรงกับตัวเลขในหน้า trip-detail.html)
+    const TOTAL_CHARACTERS = 89; 
+    
+    // 🎯 2. ให้ Javascript ปั๊มรายชื่อ 1.png, 2.png, 3.png... ให้อัตโนมัติ
+    const characterList = [];
+    for (let i = 1; i <= TOTAL_CHARACTERS; i++) {
+      characterList.push({
+        name: `สหายหมายเลข ${i}`,
+        sprite: `assets/chars/${i}.png`
       });
     }
 
-    function generateUIOptions() {
-      const skinBox = document.getElementById('option_skin'); skinBox.innerHTML = '';
-      configData.skin.forEach((color, idx) => {
-        const activeBorder = avatarDNA.skin === idx ? 'ring-4 ring-blue-500 scale-105' : 'opacity-80';
-        skinBox.innerHTML += `<button onclick="changePiece('skin', ${idx})" class="w-8 w-8 h-8 rounded-full border border-slate-700 cursor-pointer transition-all ${activeBorder}" style="background-color: ${color}"></button>`;
-      });
+    // 🧙‍♂️ 3. ระบบคำนวณเฟรมอัตโนมัติจากขนาดรูปภาพ
+    characterList.forEach(char => {
+      char.frames = 1; // ตั้งค่ากันเหนียวไว้ก่อน 1 เฟรม
+      const img = new Image();
+      img.onload = function() {
+        char.frames = Math.max(1, Math.round(this.width / this.height));
+      };
+      img.src = char.sprite;
+    });
 
-      const hairBox = document.getElementById('option_hair'); hairBox.innerHTML = '';
-      configData.hair.forEach((item, idx) => {
-        const activeBg = avatarDNA.hair === idx ? 'bg-blue-600 text-white border-blue-400 font-bold' : 'bg-slate-800 text-slate-300 border-slate-700 text-xs';
-        hairBox.innerHTML += `<button onclick="changePiece('hair', ${idx})" class="px-2.5 py-2 rounded-xl border text-[11px] cursor-pointer transition-all ${activeBg}">${item.name}</button>`;
-      });
+    // ฟังก์ชันวาดรูปพรีวิวตัวละครหลัก
+    function renderPreview() {
+      const item = characterList[selectedCharIndex];
+      const previewEl = document.getElementById('previewAvatar');
+      if (previewEl && item) {
+        previewEl.style.backgroundImage = `url('${item.sprite}')`;
+        previewEl.style.backgroundSize = `${item.frames * 100}% 100%`;
+      }
+    }
 
-      const glassBox = document.getElementById('option_glasses'); glassBox.innerHTML = '';
-      configData.glasses.forEach((item, idx) => {
-        const activeBg = avatarDNA.glasses === idx ? 'bg-blue-600 text-white border-blue-400 font-bold' : 'bg-slate-800 text-slate-300 border-slate-700 text-xs';
-        glassBox.innerHTML += `<button onclick="changePiece('glasses', ${idx})" class="px-2.5 py-2 rounded-xl border text-[11px] cursor-pointer transition-all ${activeBg}">${item.name}</button>`;
-      });
-
-      const clothBox = document.getElementById('option_cloth'); clothBox.innerHTML = '';
-      configData.cloth.forEach((item, idx) => {
-        const activeBg = avatarDNA.cloth === idx ? 'bg-blue-600 text-white border-blue-400 font-bold' : 'bg-slate-800 text-slate-300 border-slate-700 text-xs';
-        clothBox.innerHTML += `<button onclick="changePiece('cloth', ${idx})" class="px-2.5 py-2 rounded-xl border text-[11px] cursor-pointer transition-all ${activeBg}">${item.name}</button>`;
+    // ฟังก์ชันสร้างตารางเลือกตัวละคร
+    function generateGrid() {
+      const grid = document.getElementById('characterGrid');
+      grid.innerHTML = '';
+      characterList.forEach((char, idx) => {
+        const isActive = selectedCharIndex === idx ? 'ring-4 ring-blue-500 bg-slate-800' : 'border border-slate-700 bg-slate-900 opacity-60 hover:opacity-100';
+        grid.innerHTML += `
+          <div onclick="selectChar(${idx})" class="rounded-xl p-2 cursor-pointer transition-all flex flex-col items-center gap-2 ${isActive}">
+            <div class="w-12 h-12 relative">
+              <div id="grid_img_${idx}" class="absolute inset-0 w-full h-full pixel-board" style="background-repeat: no-repeat; background-image: url('${char.sprite}'); background-size: ${char.frames * 100}% 100%;"></div>
+            </div>
+            <span class="text-[10px] font-bold text-slate-400 text-center truncate w-full">${char.name}</span>
+          </div>
+        `;
       });
     }
 
-    window.changePiece = function(part, index) {
-      avatarDNA[part] = index;
-      renderAllLayers();
-      generateUIOptions();
+    // 🕒 เครื่องยนต์ขยับแผ่นสไปรท์ชีท (คำนวณสเกล Auto)
+    setInterval(() => {
+      globalFrameTick++;
+      
+      // สลับภาพตัวละครหลักตรงกลาง
+      const mainChar = characterList[selectedCharIndex];
+      if (mainChar) {
+        const previewEl = document.getElementById('previewAvatar');
+        if (previewEl) {
+          previewEl.style.backgroundSize = `${mainChar.frames * 100}% 100%`;
+          const xPos = mainChar.frames > 1 ? ((globalFrameTick % mainChar.frames) / (mainChar.frames - 1)) * 100 : 0;
+          previewEl.style.backgroundPosition = `${xPos}% 0`;
+        }
+      }
+
+      // สลับภาพตัวละครในตารางขวามือให้ขยับพร้อมกัน
+      characterList.forEach((char, idx) => {
+        const gridImg = document.getElementById(`grid_img_${idx}`);
+        if (gridImg) {
+          gridImg.style.backgroundSize = `${char.frames * 100}% 100%`;
+          const xPos = char.frames > 1 ? ((globalFrameTick % char.frames) / (char.frames - 1)) * 100 : 0;
+          gridImg.style.backgroundPosition = `${xPos}% 0`;
+        }
+      });
+    }, 150);
+
+    window.selectChar = function(index) {
+      selectedCharIndex = index;
+      renderPreview();
+      generateGrid();
     };
 
-    window.randomizeAvatar = function() {
-      avatarDNA.skin = Math.floor(Math.random() * configData.skin.length);
-      avatarDNA.hair = Math.floor(Math.random() * configData.hair.length);
-      avatarDNA.glasses = Math.floor(Math.random() * configData.glasses.length);
-      avatarDNA.cloth = Math.floor(Math.random() * configData.cloth.length);
-      renderAllLayers(); generateUIOptions();
-    };
-
-    async function loadSavedAvatarFromCloud() {
+    // โหลดข้อมูลเก่าจากคลาวด์ ถ้าเพื่อนเคยแต่งตัวไว้แล้ว
+    async function loadSavedAvatar() {
       try {
         const docSnap = await getDoc(doc(db, "gang_avatars", currentUserSession.name));
         if (docSnap.exists()) {
           const cloudData = docSnap.data();
-          if (cloudData.dna) avatarDNA = cloudData.dna;
+          if (cloudData.charId !== undefined && cloudData.charId < TOTAL_CHARACTERS) selectedCharIndex = cloudData.charId;
           if (cloudData.speech) document.getElementById('avatarSpeechInput').value = cloudData.speech;
         }
-      } catch (err) { console.error("Error loading avatar:", err); }
-      renderAllLayers(); generateUIOptions();
+      } catch (err) { console.error("Error:", err); }
+
+      // หน่วงเวลาให้รูปภาพโหลดและคำนวณเฟรมเสร็จก่อนโชว์ผล
+      setTimeout(() => {
+        renderPreview(); 
+        generateGrid();
+      }, 100);
     }
 
     window.saveAvatarDNA = async function() {
@@ -218,18 +170,23 @@
       try {
         await setDoc(doc(db, "gang_avatars", currentUserSession.name), {
           name: currentUserSession.name,
-          dna: avatarDNA,
+          charId: selectedCharIndex,
           speech: speechText,
           lastUpdated: Date.now()
         });
-        alert("🎉 บันทึกตัวละครเสร็จสิ้น! ตอนนี้อวตารของคุณจะไปยืนรอเพื่อนๆ ในกรุ๊ปทริปคลาวด์แล้วครับ!");
-      } catch (err) {
-        console.error("Firebase Sync Error:", err);
-        alert("เกิดข้อผิดพลาดในการเซฟข้อมูล");
-      }
+        
+        alert("🎉 บันทึกตัวละครเรียบร้อย! เด้งกลับไปดูหน้าแพลนทริปกันเลย!");
+        
+        // เด้งกลับไปหน้าทริปที่เปิดค้างไว้ล่าสุด (หรือแดชบอร์ดถ้าย้อนมา)
+        const tripId = localStorage.getItem('gang_current_trip_id');
+        if(tripId) { window.location.href = "trip-detail.html"; } 
+        else { window.location.href = "dashboard.html"; }
+        
+      } catch (err) { alert("เกิดข้อผิดพลาดในการเซฟข้อมูลลง Firebase"); }
     };
 
-    loadSavedAvatarFromCloud();
+    // รันครั้งแรกเมื่อเปิดหน้าเว็บ
+    loadSavedAvatar();
   </script>
 </body>
 </html>

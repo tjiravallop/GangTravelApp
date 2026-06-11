@@ -6,7 +6,8 @@
   <title>GangTrip - รายละเอียดทริป</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
   <style>
-    .image-render-pixel {
+    /* สไตล์คุมลายเส้นพิกเซลอาร์ทให้คมชัด ไม่เบลอ */
+    .pixel-board {
       image-rendering: pixelated;
       image-rendering: crisp-edges;
     }
@@ -41,6 +42,7 @@
   </div>
 
   <main class="max-w-6xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+    
     <section class="lg:col-span-6 bg-white p-6 rounded-2xl border border-gray-200 shadow-2xs flex flex-col">
       <div class="flex justify-between items-center mb-3">
         <h3 class="text-lg font-bold text-gray-900">📅 แผนการเดินทางรายวัน</h3>
@@ -56,7 +58,7 @@
           <h3 class="text-lg font-bold text-gray-900">💰 บันทึกบิลและแชร์เงิน</h3>
           <div class="flex gap-1.5">
             <button onclick="copyLineSummary()" class="text-xs bg-slate-100 text-slate-600 font-bold px-2.5 py-1.5 rounded-lg hover:bg-slate-200 cursor-pointer">📋 ก๊อปส่งไลน์</button>
-            <button onclick="openExpenseModal('create')" class="text-xs bg-emerald-50 text-emerald-600 font-bold px-3 py-1.5 rounded-lg hover:bg-emerald-100 cursor-pointer">+ บันทึกจ่าย</button>
+            <button onclick="openExpenseModal('create')" class="text-xs bg-emerald-50 text-emerald-600 font-bold px-3 py-1.5 rounded-lg hover:bg-emerald-100 cursor-pointer"> + บันทึกจ่าย</button>
           </div>
         </div>
         <div id="expenseListContainer" class="space-y-2 max-h-[160px] overflow-y-auto mb-2"></div>
@@ -97,7 +99,7 @@
         </div>
         <div>
           <label class="block text-xs font-bold text-gray-500 mb-1">📍 ลิงก์แผนที่ Google Maps</label>
-          <input type="url" id="planMapUrl" placeholder="http://googleusercontent.com/maps.google.com/..." class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm text-blue-600 font-mono">
+          <input type="url" id="planMapUrl" placeholder="https://maps.google.com/..." class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm text-blue-600 font-mono">
         </div>
         <div class="flex gap-2 pt-2">
           <button type="button" onclick="closePlanModal()" class="flex-1 bg-gray-100 py-2 rounded-lg text-xs cursor-pointer">ยกเลิก</button>
@@ -147,32 +149,33 @@
     import { doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     let trips = [];
-    let allAvatars = {}; // โลคอลเก็บดีเอ็นเออวตารเพื่อนๆ ทั่วประเทศ
+    let allAvatars = {}; 
     let currentUserSession = JSON.parse(localStorage.getItem('gang_current_session'));
     let currentOpenTripId = localStorage.getItem('gang_current_trip_id');
     let currentSelectedDayIndex = 0;
+    let globalFrameTick = 0;
 
-    const configData = {
-      skin: ["#ffdbac", "#f1c27d", "#e0ac69", "#c68642", "#8d5524"],
-      hair: [
-        { name: "ไม่มีผม", color: "transparent", draw: null },
-        { name: "ผมสั้น", color: "#2d3748", type: "short" },
-        { name: "ผมยาว", color: "#e53e3e", type: "long" },
-        { name: "ทรงโมฮอค", color: "#ecc94b", type: "mohawk" },
-        { name: "ผมหน้าม้า", color: "#4a5568", type: "fringe" }
-      ],
-      glasses: [
-        { name: "ไม่ใส่แว่น", color: "transparent" },
-        { name: "แว่นกลม", color: "#3182ce" },
-        { name: "แว่นดำ", color: "#1a202c" }
-      ],
-      cloth: [
-        { name: "ขาว", color: "#ffffff" },
-        { name: "น้ำเงิน", color: "#2b6cb0" },
-        { name: "แดง", color: "#e53e3e" },
-        { name: "ส้ม", color: "#dd6b20" }
-      ]
-    };
+    // 🎯 แก้ไขตัวเลขนี้ตามจำนวนไฟล์สไปรท์ชีทตัวละครทั้งหมดที่คุณเดฟมีในโฟลเดอร์ assets/chars/
+    const TOTAL_CHARACTERS = 89; 
+    
+    // ระบบสร้างตารางรายชื่อตัวละครเลขเรียงอัตโนมัติ 1.png, 2.png, 3.png...
+    const characterList = [];
+    for (let i = 1; i <= TOTAL_CHARACTERS; i++) {
+      characterList.push({
+        name: `สหายหมายเลข ${i}`,
+        sprite: `assets/chars/${i}.png`
+      });
+    }
+
+    // 🧮 เอนจิ้นคำนวณจับหาจำนวนเฟรมภาพจากสัดส่วนความกว้างยาวอัตโนมัติ
+    characterList.forEach(char => {
+      char.frames = 1; 
+      const img = new Image();
+      img.onload = function() {
+        char.frames = Math.max(1, Math.round(this.width / this.height));
+      };
+      img.src = char.sprite;
+    });
 
     if (!currentUserSession || !currentOpenTripId) {
       window.location.href = "dashboard.html";
@@ -184,14 +187,13 @@
       return arr;
     }
 
-    // สตรีมจับตาคลังอวตารของระบบออนไลน์ดึงมาวาด Realtime
+    // ติดตามข้อมูลคลังอวตารเพื่อนๆ บนคลาวด์แบบเรียลไทม์
     onSnapshot(collection(db, "gang_avatars"), (snapshot) => {
-      snapshot.forEach(doc => {
-        allAvatars[doc.id] = doc.data();
-      });
+      snapshot.forEach(doc => { allAvatars[doc.id] = doc.data(); });
       renderTripAvatars();
     });
 
+    // ติดตามข้อมูลแผนการเดินทางของทริปปัจจุบัน
     onSnapshot(doc(db, "gang_system", "trips_data"), (docSnap) => {
       if (docSnap.exists()) { trips = docSnap.data().list || []; }
       renderPlansAndExpenses();
@@ -201,54 +203,24 @@
         document.getElementById('detailTripTitle').innerText = targetTrip.name;
         document.getElementById('detailTripSub').innerText = `📍 ${targetTrip.dest} | 📅 ${targetTrip.start} ถึง ${targetTrip.end}`;
         document.getElementById('detailTripMembers').innerText = `👥 สมาชิกแก๊ง: ${targetTrip.memberList.join(', ')}`;
-        document.getElementById('editTripBtn').setAttribute('onclick', `window.location.href='dashboard.html'`); // สั่งให้ปุ่มลิ้งกลับไปเปิดฟอร์มแก้ทริปหลัก
+        document.getElementById('editTripBtn').setAttribute('onclick', `window.location.href='dashboard.html'`);
         renderDayTabs(targetTrip);
         renderTripAvatars();
       }
     });
 
-    // 🎨 ฟังก์ชันเอ็นจิ้นจำลองการประกบ Layer ดีเอ็นเอพิกเซลมาพ่นบนหน้าจอ
-    function drawAvatarOnCanvas(canvasId, dna) {
-      const canvas = document.getElementById(canvasId); if(!canvas) return;
-      const ctx = canvas.getContext('2d');
-      canvas.width = 32; canvas.height = 32;
-      ctx.clearRect(0, 0, 32, 32);
-
-      // 1. วาดโครงหน้า
-      ctx.fillStyle = configData.skin[dna.skin || 0];
-      ctx.fillRect(10, 12, 12, 11); ctx.fillRect(12, 23, 8, 3);
-
-      // 2. ตา/ปาก
-      ctx.fillStyle = "#000000"; ctx.fillRect(12, 16, 2, 2); ctx.fillRect(18, 16, 2, 2);
-      ctx.fillStyle = "#ffffff"; ctx.fillRect(13, 16, 1, 1); ctx.fillRect(19, 16, 1, 1);
-      ctx.fillStyle = "#ff6b6b"; ctx.fillRect(14, 20, 4, 1);
-
-      // 3. ผม
-      const hairItem = configData.hair[dna.hair || 0];
-      if (hairItem && hairItem.color !== 'transparent') {
-        ctx.fillStyle = hairItem.color;
-        if (hairItem.type === "short") { ctx.fillRect(9, 10, 14, 4); ctx.fillRect(9, 11, 2, 5); ctx.fillRect(21, 11, 2, 5); }
-        else if (hairItem.type === "long") { ctx.fillRect(9, 10, 14, 5); ctx.fillRect(8, 12, 3, 12); ctx.fillRect(21, 12, 3, 12); }
-        else if (hairItem.type === "mohawk") { ctx.fillRect(14, 6, 4, 7); ctx.fillRect(15, 4, 2, 3); }
-        else if (hairItem.type === "fringe") { ctx.fillRect(9, 10, 14, 4); ctx.fillRect(10, 14, 12, 3); ctx.fillRect(13, 17, 3, 1); }
-      }
-
-      // 4. ชุดเสื้อผ้า
-      const clothItem = configData.cloth[dna.cloth || 0];
-      if (clothItem) {
-        ctx.fillStyle = clothItem.color;
-        ctx.fillRect(8, 25, 16, 7); ctx.fillRect(6, 25, 2, 4); ctx.fillRect(24, 25, 2, 4);
-      }
-
-      // 5. แว่นตา
-      const glassItem = configData.glasses[dna.glasses || 0];
-      if (glassItem && glassItem.color !== 'transparent') {
-        ctx.fillStyle = glassItem.color; ctx.fillRect(11, 15, 4, 3); ctx.fillRect(17, 15, 4, 3); ctx.fillRect(15, 16, 2, 1);
-        ctx.fillStyle = "rgba(255,255,255,0.4)"; ctx.fillRect(12, 16, 1, 1); ctx.fillRect(18, 16, 1, 1);
-      }
+    // เปิดสิทธิ์แสดงผลปุ่มควบคุมกิจกรรมให้ทุกคนเข้าถึงได้
+    function applyRoleAccess() {
+      const editTripBtn = document.getElementById('editTripBtn');
+      const addPlanBtn = document.getElementById('addPlanMainBtn');
+      if (editTripBtn) editTripBtn.classList.remove('hidden');
+      if (addPlanBtn) addPlanBtn.classList.remove('hidden');
     }
+    applyRoleAccess();
 
-    // 👥 วาดกองกำลังอวตารตามรายชื่อเพื่อนที่มีอยู่ในทริปนี้
+    async function saveTripsToFirebase() { await setDoc(doc(db, "gang_system", "trips_data"), { list: trips }); }
+
+    // 👥 เสกพื้นที่แสดงตัวละครเพื่อนๆ ในทริป
     function renderTripAvatars() {
       const targetTrip = trips.find(t => t.id === currentOpenTripId); if (!targetTrip) return;
       const container = document.getElementById('tripAvatarsContainer'); if (!container) return;
@@ -256,24 +228,24 @@
 
       targetTrip.memberList.forEach(name => {
         const avatarData = allAvatars[name];
-        const canvasId = `canvas_member_${name.replace(/\s+/g, '_')}`;
+        if (avatarData && avatarData.charId !== undefined) {
+          const charItem = characterList[avatarData.charId];
+          const bgImg = charItem ? `background-image: url('${charItem.sprite}');` : '';
 
-        if (avatarData && avatarData.dna) {
           container.innerHTML += `
             <div class="flex flex-col items-center gap-1 relative group cursor-help shrink-0">
               <div class="absolute -top-10 bg-blue-600 border border-blue-400 text-white font-black text-[10px] px-2 py-1 rounded-xl shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30 pointer-events-none">
                 ${avatarData.speech || 'Let\'s Go! ✈️'}
               </div>
               <div class="w-14 h-14 bg-slate-950 rounded-xl border border-slate-700 flex items-center justify-center p-1 shadow-inner relative">
-                <canvas id="${canvasId}" class="w-12 h-12 image-render-pixel"></canvas>
+                <div class="w-12 h-12 relative">
+                  <div id="avatar_img_${name.replace(/\s+/g, '')}" class="absolute inset-0 w-full h-full pixel-board" style="background-repeat: no-repeat; background-position: 0% 0; ${bgImg}"></div>
+                </div>
               </div>
               <span class="text-[10px] font-black text-slate-400">${name}</span>
             </div>
           `;
-          // หน่วงเวลาเสี้ยววิเพื่อให้เบราเซอร์สร้างแท็กสัญลักษณ์ Canvas ในหน้าจอเสร็จแล้ววาดลายเส้นลงไปทันที
-          setTimeout(() => drawAvatarOnCanvas(canvasId, avatarData.dna), 5);
         } else {
-          // หากเพื่อนมีชื่อในทริปแต่ยังไม่เคยเข้าไปเซ็ตเสื้อผ้าหน้าผมในห้องแต่งตัว
           container.innerHTML += `
             <div class="flex flex-col items-center gap-1 opacity-40 shrink-0">
               <div class="w-14 h-14 bg-slate-800 rounded-xl border border-dashed border-slate-600 flex items-center justify-center text-xs font-bold text-slate-400">?</div>
@@ -283,6 +255,28 @@
         }
       });
     }
+
+    // 🕒 สั่งเลื่อนแอนิเมชัน Background แผ่นสไปรท์ชีทอัตโนมัติให้ทุกตัวละครขยับตัวพร้อมกัน
+    setInterval(() => {
+      globalFrameTick++;
+      const targetTrip = trips.find(t => t.id === currentOpenTripId);
+      if (!targetTrip) return;
+
+      targetTrip.memberList.forEach(name => {
+        const avatarData = allAvatars[name];
+        if (avatarData && avatarData.charId !== undefined) {
+          const charItem = characterList[avatarData.charId];
+          if (charItem) {
+            const imgEl = document.getElementById(`avatar_img_${name.replace(/\s+/g, '')}`);
+            if (imgEl) {
+              imgEl.style.backgroundSize = `${charItem.frames * 100}% 100%`;
+              const xPos = charItem.frames > 1 ? ((globalFrameTick % charItem.frames) / (charItem.frames - 1)) * 100 : 0;
+              imgEl.style.backgroundPosition = `${xPos}% 0`;
+            }
+          }
+        }
+      });
+    }, 150);
 
     function renderDayTabs(trip) {
       const container = document.getElementById('dayTabsContainer'); if(!container) return; container.innerHTML = '';
@@ -305,7 +299,7 @@
         filteredPlans.sort((a, b) => a.time.localeCompare(b.time));
         filteredPlans.forEach(plan => {
           const mapBtn = plan.mapUrl ? `<a href="${plan.mapUrl}" target="_blank" class="text-[11px] bg-white border px-2 py-1 rounded-md text-blue-600 font-bold shadow-2xs">📍 แผนที่</a>` : '';
-          // ✅ ปลดสิทธิ์ให้เพื่อนๆ ทั่วไปกดแก้ไขหรือลบกิจกรรมในไทม์ไลน์ได้อิสระ
+          // 🔓 เปิดสิทธิ์เสรีให้ทุกคนกดปุ่มแก้ไขจัดการแผนงานรายวันได้เลย
           const adminControls = `<button onclick="openPlanModal('edit', '${plan.id}')" class="text-xs text-gray-400 p-0.5 cursor-pointer">✏️</button><button onclick="deletePlan('${plan.id}')" class="text-xs text-gray-400 p-0.5 cursor-pointer">🗑️</button>`;
           planContainer.innerHTML += `<div class="flex items-start gap-3 relative pl-2"><div class="w-6 h-6 rounded-full bg-blue-600 border-4 border-white z-10"></div><div class="bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 flex-1 flex justify-between items-center"><div class="truncate max-w-[70%]"><span class="text-xs font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md mr-1">${plan.time}</span><span class="text-sm font-semibold text-gray-800">${plan.title}</span></div><div class="flex items-center gap-1">${mapBtn} ${adminControls}</div></div></div>`;
         });
