@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GangTrip - เข้าสู่ระบบ</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-  <style>
-    /* สไตล์คุมลายเส้นพิกเซลอาร์ท */
-    .pixel-board { image-rendering: pixelated; image-rendering: crisp-edges; }
-  </style>
+  <style> .pixel-board { image-rendering: pixelated; image-rendering: crisp-edges; } </style>
 </head>
 <body class="min-h-screen bg-slate-900 font-sans m-0 text-slate-100 flex items-center justify-center bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px]">
 
@@ -25,12 +22,12 @@
 
       <form id="loginForm" class="space-y-5 relative z-10">
         <div>
-          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">👤 ชื่อผู้เล่น (Display Name)</label>
-          <input type="text" id="loginName" required placeholder="เช่น Mook, เดฟ" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white font-bold focus:outline-none focus:border-blue-500 transition-colors shadow-inner">
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">🔑 ID Login (ไอดีเข้าใช้งาน)</label>
+          <input type="text" id="loginId" required placeholder="เช่น Kookai11, Moo123" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white font-bold focus:outline-none focus:border-blue-500 transition-colors shadow-inner lowercase">
         </div>
         
         <div>
-          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">🔑 รหัสผ่าน 4 หลัก (PS)</label>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">🔒 พาสเวิร์ด 4 หลัก (PS)</label>
           <input type="password" id="loginPass" required maxlength="4" placeholder="••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-center text-lg text-white font-mono font-bold focus:outline-none focus:border-blue-500 transition-colors shadow-inner tracking-[0.5em]">
         </div>
 
@@ -38,82 +35,59 @@
           🚀 เข้าสู่ระบบ
         </button>
       </form>
-      
-      <p class="text-center text-[10px] text-slate-500 mt-6 font-medium">
-        ยังไม่มีรหัส? ให้แอดมินสร้างสิทธิ์ให้ก่อนนะจ๊ะ
-      </p>
     </div>
   </div>
 
   <script type="module">
     import { db } from "./js/firebase-config.js";
-    import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // ถ้าเคยล็อกอินค้างไว้ ให้เด้งไปหน้า Dashboard เลย
-    const existingSession = localStorage.getItem('gang_current_session');
-    if (existingSession) { window.location.href = "dashboard.html"; }
+    if (localStorage.getItem('gang_current_session')) { window.location.href = "dashboard.html"; }
 
     const loginForm = document.getElementById('loginForm');
     const submitBtn = document.getElementById('submitBtn');
 
     loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
-      const inputName = document.getElementById('loginName').value.trim();
+      const inputId = document.getElementById('loginId').value.trim();
       const inputPass = document.getElementById('loginPass').value.trim();
 
-      // เปลี่ยนปุ่มเป็นสถานะกำลังโหลด
-      const originalBtnText = submitBtn.innerHTML;
-      submitBtn.innerHTML = `⏳ กำลังตรวจสอบ...`;
-      submitBtn.disabled = true;
+      submitBtn.innerHTML = `⏳ กำลังตรวจสอบ...`; submitBtn.disabled = true;
 
       try {
-        // ดึงข้อมูลรายชื่อเพื่อนและพาสเวิร์ดจาก Firebase
         const docRef = doc(db, "gang_system", "passcodes");
         const docSnap = await getDoc(docRef);
+        let users = docSnap.exists() ? (docSnap.data().users || []) : [];
 
-        if (docSnap.exists()) {
-          const users = docSnap.data().users || [];
-          
-          // ค้นหาชื่อที่กรอกเข้ามา (แปลงเป็นตัวพิมพ์เล็กหมดเพื่อกันการพิมพ์เล็กใหญ่ผิด)
-          const foundUser = users.find(u => u.name.toLowerCase() === inputName.toLowerCase());
+        let foundUser = users.find(u => u.loginId && u.loginId.toLowerCase() === inputId.toLowerCase());
 
-          if (!foundUser) {
-            // กรณีที่ 1: หาชื่อไม่เจอ
-            alert("❌ ไม่พบชื่อนี้ในระบบ หรือยังไม่ได้รับสิทธิ์เข้าใช้งาน! ติดต่อแอดมินด่วน!");
-          } else if (foundUser.passcode !== inputPass) {
-            // 🚨 กรณีที่ 2: ใส่พาสเวิร์ดผิด (จุดที่คุณเดฟรีเควส)
-            alert("ใส่รหัสผิดนะจ๊ะ");
-          } else {
-            // ✅ กรณีที่ 3: ผ่านฉลุย!
-            
-            // 👑 กำหนดสิทธิ์: ถ้าชื่อคือ 'เดฟ' หรือ 'admin' ให้ได้รับสิทธิ์แอดมินอัตโนมัติ
-            let role = 'user';
-            if (foundUser.name.toLowerCase() === 'เดฟ' || foundUser.name.toLowerCase() === 'admin') {
-              role = 'admin';
-            }
+        // 🚨 [Backdoor VIP ของคุณเดฟ] ถ้า DB ว่าง และใส่รหัสแอดมิน ให้เสกข้อมูลลง Firebase อัตโนมัติทันที!
+        if (!foundUser && (inputId.toLowerCase() === 'admin' || inputId.toLowerCase() === 'dave') && inputPass === '2308') {
+          foundUser = { loginId: inputId.toLowerCase(), displayName: 'เดฟ', passcode: '2308' };
+          users.push(foundUser);
+          await setDoc(docRef, { users: users });
+        }
 
-            // บันทึก Session ลงเครื่อง
-            const sessionData = { 
-              name: foundUser.name, // ใช้ชื่อตามที่บันทึกในระบบเป๊ะๆ (ตัวเล็ก-ใหญ่)
-              role: role 
-            };
-            localStorage.setItem('gang_current_session', JSON.stringify(sessionData));
-            
-            // เด้งไปหน้าหลัก
-            window.location.href = "dashboard.html";
-          }
+        if (!foundUser) {
+          alert("❌ ไม่มีชื่อนี้โว้ยยย ไปขอ ID จากแอดมินมาก่อน!");
+        } else if (foundUser.passcode !== inputPass) {
+          alert("ใส่รหัสผิดนะจ๊ะ");
         } else {
-          alert("⚠️ ไม่พบฐานข้อมูลระบบใน Firebase ครับ (Admin ต้องไปสร้าง Database ก่อน)");
+          // กำหนดสิทธิ์และเข้าสู่ระบบ
+          let role = 'user';
+          if (foundUser.loginId.toLowerCase() === 'admin' || foundUser.loginId.toLowerCase() === 'dave') role = 'admin';
+          
+          localStorage.setItem('gang_current_session', JSON.stringify({ 
+            loginId: foundUser.loginId, 
+            name: foundUser.displayName, // เก็บชื่อเล่นไว้โชว์
+            role: role 
+          }));
+          window.location.href = "dashboard.html";
         }
       } catch (error) {
-        console.error("Login Error:", error);
-        alert("🔌 เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ กรุณาลองใหม่");
+        alert("🔌 เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
       }
-
-      // คืนค่าปุ่มกลับมาเหมือนเดิม
-      submitBtn.innerHTML = originalBtnText;
-      submitBtn.disabled = false;
+      submitBtn.innerHTML = `🚀 เข้าสู่ระบบ`; submitBtn.disabled = false;
     });
   </script>
 </body>

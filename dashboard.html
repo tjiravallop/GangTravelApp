@@ -58,27 +58,35 @@
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
           <p class="text-xs font-bold text-slate-500 uppercase mb-3">👤 แก้ไขข้อมูลส่วนตัว</p>
           <form onsubmit="handleUpdateSelf(event)" class="space-y-3">
+            <div>
+              <label class="block text-[10px] font-bold text-slate-500 mb-1">ID Login (เปลี่ยนไม่ได้)</label>
+              <input type="text" id="selfIdInput" disabled class="w-full border border-slate-200 bg-slate-100 text-slate-400 rounded-lg p-2 text-xs font-mono">
+            </div>
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-[10px] font-bold text-slate-500 mb-1">ชื่อที่แสดง</label>
-                <input type="text" id="selfNameInput" required class="w-full border border-slate-300 rounded-lg p-2 text-xs font-semibold bg-white focus:border-blue-500 outline-none">
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">ชื่อเล่น (โชว์ในเว็บ)</label>
+                <input type="text" id="selfNameInput" required class="w-full border border-slate-300 rounded-lg p-2 text-xs font-semibold bg-white outline-none">
               </div>
               <div>
-                <label class="block text-[10px] font-bold text-slate-500 mb-1">เปลี่ยนรหัสผ่าน (PS)</label>
-                <input type="text" id="selfPassInput" required maxlength="4" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono font-bold text-center bg-white focus:border-blue-500 outline-none">
+                <label class="block text-[10px] font-bold text-slate-500 mb-1">พาสเวิร์ด (PS)</label>
+                <input type="text" id="selfPassInput" required maxlength="4" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono font-bold text-center bg-white outline-none">
               </div>
             </div>
-            <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 rounded-lg text-xs cursor-pointer transition-colors">💾 บันทึกข้อมูลส่วนตัว</button>
+            <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 rounded-lg text-xs cursor-pointer">💾 บันทึกข้อมูลส่วนตัว</button>
           </form>
         </div>
 
         <div id="adminSettingsSection" class="hidden border-t border-slate-200 pt-5">
           <p class="text-xs font-black text-amber-600 uppercase mb-3 flex items-center gap-1">👑 ห้องควบคุมเครือข่าย (Admin Panel)</p>
           <form onsubmit="handleAdminUpdateUser(event)" class="bg-amber-50 p-3 rounded-xl border border-amber-200 space-y-3 mb-4">
+            <div>
+              <label class="block text-[10px] font-bold text-amber-800 mb-0.5">ID Login (ไอดีเข้าสู่ระบบ)</label>
+              <input type="text" id="adminLoginId" required placeholder="ex: mook123" class="w-full border border-amber-300 rounded-lg p-1.5 text-xs bg-white lowercase">
+            </div>
             <div class="grid grid-cols-2 gap-2">
               <div>
-                <label class="block text-[10px] font-bold text-amber-800 mb-0.5">ชื่อเพื่อน</label>
-                <input type="text" id="adminFriendName" required placeholder="เพิ่ม/แก้ไขชื่อ" class="w-full border border-amber-300 rounded-lg p-1.5 text-xs bg-white">
+                <label class="block text-[10px] font-bold text-amber-800 mb-0.5">ชื่อเล่น (โชว์ในเว็บ)</label>
+                <input type="text" id="adminDisplayName" required placeholder="ex: Mook" class="w-full border border-amber-300 rounded-lg p-1.5 text-xs bg-white">
               </div>
               <div>
                 <label class="block text-[10px] font-bold text-amber-800 mb-0.5">พาสเวิร์ด (PS)</label>
@@ -99,27 +107,15 @@
 
   <div id="tripModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
     <div class="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden">
-      <div class="p-6 border-b border-gray-100 flex justify-between items-center">
-        <h3 id="modalTitle" class="text-lg font-bold text-gray-900">สร้างทริป</h3>
-        <button onclick="closeModal()" class="text-gray-400 font-bold text-xl cursor-pointer">×</button>
-      </div>
+      <div class="p-6 border-b border-gray-100 flex justify-between items-center"><h3 id="modalTitle" class="text-lg font-bold text-gray-900">สร้างทริป</h3><button onclick="closeModal()" class="text-gray-400 font-bold text-xl cursor-pointer">×</button></div>
       <form onsubmit="handleFormSubmit(event)" class="p-6 space-y-4">
         <input type="hidden" id="editTripId">
         <div><label class="block text-xs font-bold text-gray-700 uppercase mb-1">ชื่อทริปสุดเฟี้ยว</label><input type="text" id="tripName" required class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm"></div>
         <div><label class="block text-xs font-bold text-gray-700 uppercase mb-1">ไปที่ไหนกันดี</label><input type="text" id="tripDest" required class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm"></div>
-        <div class="grid grid-cols-2 gap-4">
-          <div><label class="block text-xs font-bold text-gray-700 uppercase mb-1">วันเริ่มเดินทาง</label><input type="date" id="startDate" required class="w-full border border-gray-300 rounded-xl px-2 py-1.5 text-sm"></div>
-          <div><label class="block text-xs font-bold text-gray-700 uppercase mb-1">วันเดินทางกลับ</label><input type="date" id="endDate" required class="w-full border border-gray-300 rounded-xl px-2 py-1.5 text-sm"></div>
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-blue-600 uppercase mb-1">🖼️ เลือกฉากหลังประจำทริป</label>
-          <select id="tripBgSelect" class="w-full border border-blue-300 bg-blue-50/30 rounded-xl px-3 py-2 text-sm bg-white font-medium"></select>
-        </div>
-        <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">👥 รายชื่อเพื่อนร่วมทริป (คั่นด้วยเครื่องหมายจุลภาค ,)</label><input type="text" id="tripMembersInput" required placeholder="เดฟ, Mook, Pangpond, เอก" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm"></div>
-        <div class="flex gap-3 pt-4 border-t border-gray-100">
-          <button type="button" onclick="closeModal()" class="flex-1 bg-gray-100 py-2 rounded-xl text-sm cursor-pointer">ยกเลิก</button>
-          <button type="submit" id="submitBtn" class="flex-1 bg-blue-600 text-white py-2 rounded-xl text-sm cursor-pointer">บันทึกข้อมูล</button>
-        </div>
+        <div class="grid grid-cols-2 gap-4"><div><label class="block text-xs font-bold text-gray-700 uppercase mb-1">วันเริ่มเดินทาง</label><input type="date" id="startDate" required class="w-full border border-gray-300 rounded-xl px-2 py-1.5 text-sm"></div><div><label class="block text-xs font-bold text-gray-700 uppercase mb-1">วันเดินทางกลับ</label><input type="date" id="endDate" required class="w-full border border-gray-300 rounded-xl px-2 py-1.5 text-sm"></div></div>
+        <div><label class="block text-xs font-bold text-blue-600 uppercase mb-1">🖼️ เลือกฉากหลังประจำทริป</label><select id="tripBgSelect" class="w-full border border-blue-300 bg-blue-50/30 rounded-xl px-3 py-2 text-sm bg-white font-medium"></select></div>
+        <div><label class="block text-xs font-bold text-gray-500 uppercase mb-1">👥 รายชื่อเพื่อนร่วมทริป (พิมพ์ชื่อเล่น คั่นด้วย ,)</label><input type="text" id="tripMembersInput" required placeholder="เดฟ, Mook, Pangpond, เอก" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm"></div>
+        <div class="flex gap-3 pt-4 border-t border-gray-100"><button type="button" onclick="closeModal()" class="flex-1 bg-gray-100 py-2 rounded-xl text-sm cursor-pointer">ยกเลิก</button><button type="submit" id="submitBtn" class="flex-1 bg-blue-600 text-white py-2 rounded-xl text-sm cursor-pointer">บันทึกข้อมูล</button></div>
       </form>
     </div>
   </div>
@@ -128,20 +124,16 @@
     import { db } from "./js/firebase-config.js";
     import { doc, setDoc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    let userRegistry = [];
-    let trips = [];
+    let userRegistry = []; let trips = [];
     let currentUserSession = JSON.parse(localStorage.getItem('gang_current_session'));
     if (!currentUserSession) { window.location.href = "index.html"; }
 
-    // ปั๊มฉากหลังออโต้ 30 ฉาก
-    const TOTAL_BGS = 30; 
-    const bgSelect = document.getElementById('tripBgSelect');
+    const TOTAL_BGS = 30; const bgSelect = document.getElementById('tripBgSelect');
     if (bgSelect) { bgSelect.innerHTML = ''; for (let i = 1; i <= TOTAL_BGS; i++) { bgSelect.innerHTML += `<option value="${i}">🗺️ ฉากที่ ${i} (Scene #${i})</option>`; } }
 
-    // โหลด Avatar เล็กบน Header
     async function loadHeaderAvatar() {
       try {
-        const docSnap = await getDoc(doc(db, "gang_avatars", currentUserSession.name));
+        const docSnap = await getDoc(doc(db, "gang_avatars", currentUserSession.name)); // ใช้ชื่อเล่นโหลดรูป
         if (docSnap.exists()) {
           const charId = docSnap.data().charId || 0;
           document.getElementById('headerAvatarImg').style.backgroundImage = `url('assets/chars/${charId + 1}.png')`;
@@ -167,18 +159,16 @@
     }
     applyRoleAccess();
 
-    window.logoutGang = function() {
-      if (confirm('ต้องการออกจากระบบใช่ไหมครับ?')) { localStorage.removeItem('gang_current_session'); window.location.href = "index.html"; }
-    };
-
+    window.logoutGang = function() { if (confirm('ต้องการออกจากระบบใช่ไหมครับ?')) { localStorage.removeItem('gang_current_session'); window.location.href = "index.html"; } };
     async function saveUserRegistryToFirebase() { await setDoc(doc(db, "gang_system", "passcodes"), { users: userRegistry }); }
     async function saveTripsToFirebase() { await setDoc(doc(db, "gang_system", "trips_data"), { list: trips }); }
 
     // ⚙️ ระบบจัดการหน้า Settings
     window.openSettingsModal = function() {
-      document.getElementById('settingsModal').classList.remove('hidden');
+      document.getElementById('settingsModal').classList.remove('hidden'); 
+      document.getElementById('selfIdInput').value = currentUserSession.loginId;
       document.getElementById('selfNameInput').value = currentUserSession.name;
-      const myData = userRegistry.find(u => u.name.toLowerCase() === currentUserSession.name.toLowerCase());
+      const myData = userRegistry.find(u => u.loginId.toLowerCase() === currentUserSession.loginId.toLowerCase());
       document.getElementById('selfPassInput').value = myData ? myData.passcode : '';
       if (currentUserSession.role === 'admin') { renderAdminUserTable(); }
     };
@@ -186,55 +176,49 @@
 
     // 🧑‍💻 อัปเดตข้อมูลตัวเอง
     window.handleUpdateSelf = async function(e) {
-      e.preventDefault();
-      const newName = document.getElementById('selfNameInput').value.trim();
-      const newPass = document.getElementById('selfPassInput').value.trim();
-
-      // ดักจับพาสเวิร์ดซ้ำ (ยกเว้นรหัสตัวเอง)
-      const isDuplicate = userRegistry.some(u => u.passcode === newPass && u.name.toLowerCase() !== currentUserSession.name.toLowerCase());
+      e.preventDefault(); const newName = document.getElementById('selfNameInput').value.trim(); const newPass = document.getElementById('selfPassInput').value.trim();
+      
+      const isDuplicate = userRegistry.some(u => u.passcode === newPass && u.loginId.toLowerCase() !== currentUserSession.loginId.toLowerCase());
       if(isDuplicate) { alert("เลขนี้ห้ามใช้ ไปใช้เลขอื่นไป๊!!!"); return; }
 
-      const idx = userRegistry.findIndex(u => u.name.toLowerCase() === currentUserSession.name.toLowerCase());
-      if (idx !== -1) { userRegistry[idx].name = newName; userRegistry[idx].passcode = newPass; }
-
+      const idx = userRegistry.findIndex(u => u.loginId.toLowerCase() === currentUserSession.loginId.toLowerCase());
+      if (idx !== -1) { userRegistry[idx].displayName = newName; userRegistry[idx].passcode = newPass; }
       await saveUserRegistryToFirebase();
       
       if (newName !== currentUserSession.name) {
-        currentUserSession.name = newName;
-        localStorage.setItem('gang_current_session', JSON.stringify(currentUserSession));
-        applyRoleAccess();
-        alert("บันทึกข้อมูลเรียบร้อย!\n(หมายเหตุ: การเปลี่ยนชื่ออาจทำให้คุณต้องไปแต่งตัว Avatar ใหม่นะคร้าบ)");
-        window.location.reload(); // รีเฟรชหน้าเพื่ออัปเดตข้อมูลทั้งหมด
-      } else {
-        alert("อัปเดตรหัสผ่านส่วนตัวสำเร็จ!");
-      }
+        currentUserSession.name = newName; localStorage.setItem('gang_current_session', JSON.stringify(currentUserSession)); applyRoleAccess();
+        alert("บันทึกข้อมูลเรียบร้อย!\n(คำเตือน: เปลี่ยนชื่อเล่นแล้วต้องเข้าไปเซฟแต่งตัว Avatar ใหม่อีกรอบนะ!)"); window.location.reload(); 
+      } else { alert("อัปเดตรหัสผ่านส่วนตัวสำเร็จ!"); }
       closeSettingsModal();
     };
 
-    // 👑 แอดมินจัดการลูกข่าย
+    // 👑 แอดมินจัดการลูกข่าย (ระบบ 3 แกน)
     window.handleAdminUpdateUser = async function(event) {
-      event.preventDefault();
-      const fName = document.getElementById('adminFriendName').value.trim();
-      const fPass = document.getElementById('adminFriendPass').value.trim();
+      event.preventDefault(); 
+      const adminLoginId = document.getElementById('adminLoginId').value.trim();
+      const adminDisplayName = document.getElementById('adminDisplayName').value.trim();
+      const adminPass = document.getElementById('adminFriendPass').value.trim();
 
-      const isDuplicate = userRegistry.some(u => u.passcode === fPass && u.name.toLowerCase() !== fName.toLowerCase());
+      const isDuplicate = userRegistry.some(u => u.passcode === adminPass && u.loginId.toLowerCase() !== adminLoginId.toLowerCase());
       if(isDuplicate) { alert("เลขนี้ห้ามใช้ ไปใช้เลขอื่นไป๊!!!"); return; }
 
-      const idx = userRegistry.findIndex(u => u.name.toLowerCase() === fName.toLowerCase());
-      if (idx !== -1) userRegistry[idx].passcode = fPass; else userRegistry.push({ name: fName, passcode: fPass });
+      const idx = userRegistry.findIndex(u => u.loginId.toLowerCase() === adminLoginId.toLowerCase());
+      if (idx !== -1) { userRegistry[idx].displayName = adminDisplayName; userRegistry[idx].passcode = adminPass; } 
+      else { userRegistry.push({ loginId: adminLoginId.toLowerCase(), displayName: adminDisplayName, passcode: adminPass }); }
+      
       await saveUserRegistryToFirebase();
-      document.getElementById('adminFriendName').value = ''; document.getElementById('adminFriendPass').value = '';
-      alert(`บันทึกสิทธิ์ของ ${fName} เรียบร้อย!`);
+      document.getElementById('adminLoginId').value = ''; document.getElementById('adminDisplayName').value = ''; document.getElementById('adminFriendPass').value = ''; 
+      alert(`บันทึกสิทธิ์ของ ${adminDisplayName} เรียบร้อย!`);
     };
 
-    window.deleteUserPasscode = async function(name) {
-      if (confirm(`เตะ ${name} ออกจากระบบ ใช่ไหม?`)) { userRegistry = userRegistry.filter(u => u.name !== name); await saveUserRegistryToFirebase(); }
+    window.deleteUserPasscode = async function(loginId, dispName) {
+      if (confirm(`เตะ ${dispName} ออกจากระบบ ใช่ไหม?`)) { userRegistry = userRegistry.filter(u => u.loginId !== loginId); await saveUserRegistryToFirebase(); }
     };
 
     function renderAdminUserTable() {
       const table = document.getElementById('adminUserTableContainer'); if(!table) return; table.innerHTML = '';
       userRegistry.forEach(u => {
-        table.innerHTML += `<div class="flex justify-between items-center bg-white border border-slate-200 p-2 rounded-xl text-xs shadow-2xs"><div><span class="font-bold text-slate-700 mr-2">👤 ${u.name}</span><span class="font-mono text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md">PS: ${u.passcode}</span></div><button onclick="deleteUserPasscode('${u.name}')" class="text-red-500 hover:bg-red-50 rounded px-1.5 py-0.5 cursor-pointer transition-colors">🗑ลบ</button></div>`;
+        table.innerHTML += `<div class="flex justify-between items-center bg-white border border-slate-200 p-2 rounded-xl text-xs shadow-2xs"><div class="flex flex-col"><span class="font-bold text-slate-700">👤 ${u.displayName}</span><span class="text-[9px] text-slate-400">ID: ${u.loginId}</span></div><div class="flex items-center gap-2"><span class="font-mono text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md">PS: ${u.passcode}</span><button onclick="deleteUserPasscode('${u.loginId}', '${u.displayName}')" class="text-red-500 hover:bg-red-50 rounded px-1.5 py-0.5 cursor-pointer">🗑ลบ</button></div></div>`;
       });
     }
 
@@ -260,9 +244,7 @@
         const bgUrl = `assets/bgs/${trip.bgCode || '1'}.png`;
         container.innerHTML += `
           <div class="bg-white border border-gray-200 rounded-2xl shadow-xs overflow-hidden hover:shadow-md transition-all cursor-pointer" onclick="openTripDetail('${trip.id}')">
-            <div class="h-28 p-4 flex flex-col justify-between text-white relative bg-slate-800" style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;">
-              <div class="absolute inset-0 bg-black/30 z-0"></div><span class="text-[10px] bg-emerald-500 text-white font-bold px-2 py-0.5 rounded-full self-start z-10 shadow-sm">Cloud Sync ☁️</span><h3 class="text-md font-black truncate z-10 drop-shadow-md">${trip.name}</h3>
-            </div>
+            <div class="h-28 p-4 flex flex-col justify-between text-white relative bg-slate-800" style="background-image: url('${bgUrl}'); background-size: cover; background-position: center;"><div class="absolute inset-0 bg-black/30 z-0"></div><span class="text-[10px] bg-emerald-500 text-white font-bold px-2 py-0.5 rounded-full self-start z-10 shadow-sm">Cloud Sync ☁️</span><h3 class="text-md font-black truncate z-10 drop-shadow-md">${trip.name}</h3></div>
             <div class="p-4"><p class="text-xs text-gray-400">📍 ${trip.dest}</p><p class="text-xs text-gray-500 mb-2">📅 ${trip.start} ถึง ${trip.end}</p><div class="flex justify-between items-center pt-2 border-t border-gray-100 text-xs"><span class="text-gray-500 truncate max-w-[50%] font-medium">👥 แก๊ง: ${trip.memberList.join(', ')}</span><div class="flex gap-1 items-center z-10">${adminTripSettings} <span class="font-bold text-blue-600 hover:underline">ดูแผน →</span></div></div></div>
           </div>`;
       });

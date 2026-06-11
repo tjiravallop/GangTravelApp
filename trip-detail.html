@@ -12,21 +12,13 @@
   <header class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-xs">
     <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
       <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='dashboard.html'">
-        <span class="text-2xl">✈️</span>
-        <span class="text-xl font-black text-gray-900 tracking-tight hidden sm:inline">GangTrip</span>
+        <span class="text-2xl">✈️</span><span class="text-xl font-black text-gray-900 tracking-tight hidden sm:inline">GangTrip</span>
       </div>
-      <div class="text-center max-w-[50%]">
-        <h2 id="detailTripTitle" class="text-sm font-bold text-gray-900 truncate">กำลังโหลด...</h2>
-      </div>
+      <div class="text-center max-w-[50%]"><h2 id="detailTripTitle" class="text-sm font-bold text-gray-900 truncate">กำลังโหลด...</h2></div>
       <div class="flex items-center gap-2">
         <button onclick="openSettingsModal()" class="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 p-1.5 pr-3 rounded-full transition-all cursor-pointer shadow-sm border border-slate-200 group">
-          <div class="w-8 h-8 rounded-full bg-slate-800 overflow-hidden relative flex-shrink-0 border border-slate-300 group-hover:scale-105 transition-transform">
-            <div id="headerAvatarImg" class="absolute inset-0 w-full h-full pixel-board" style="background-image: url('assets/chars/1.png'); background-size: cover; background-position: left center;"></div>
-          </div>
-          <div class="text-left hidden md:block">
-            <p id="navUserDisplayName" class="text-xs font-bold text-slate-700 leading-tight">Loading...</p>
-            <p id="navUserRoleBadge" class="text-[9px] font-bold text-blue-500 uppercase tracking-wider">User</p>
-          </div>
+          <div class="w-8 h-8 rounded-full bg-slate-800 overflow-hidden relative flex-shrink-0 border border-slate-300 group-hover:scale-105 transition-transform"><div id="headerAvatarImg" class="absolute inset-0 w-full h-full pixel-board" style="background-image: url('assets/chars/1.png'); background-size: cover; background-position: left center;"></div></div>
+          <div class="text-left hidden md:block"><p id="navUserDisplayName" class="text-xs font-bold text-slate-700 leading-tight">Loading...</p><p id="navUserRoleBadge" class="text-[9px] font-bold text-blue-500 uppercase tracking-wider">User</p></div>
         </button>
         <button onclick="logoutGang()" class="w-10 h-10 rounded-full bg-red-50 hover:bg-red-500 text-red-500 hover:text-white flex items-center justify-center font-bold transition-all cursor-pointer shadow-sm" title="ออกจากระบบ">🚪</button>
       </div>
@@ -35,51 +27,21 @@
 
   <div class="bg-slate-100 border-b border-slate-200 py-2 px-4 shadow-inner">
     <div class="max-w-6xl mx-auto flex items-center justify-between">
-      <div>
-        <p id="detailTripSub" class="text-xs text-slate-600 truncate">วันเวลาและพิกัด</p>
-        <p id="detailTripMembers" class="text-[10px] text-teal-600 font-bold mt-0.5 truncate">👥 สมาชิก:</p>
-      </div>
+      <div><p id="detailTripSub" class="text-xs text-slate-600 truncate">วันเวลาและพิกัด</p><p id="detailTripMembers" class="text-[10px] text-teal-600 font-bold mt-0.5 truncate">👥 สมาชิก:</p></div>
       <button id="editTripBtn" class="text-xs bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold px-3 py-1.5 rounded-lg cursor-pointer shadow-2xs">⚙️ ตั้งค่าทริป</button>
     </div>
   </div>
 
   <div class="max-w-6xl mx-auto px-4 mt-4">
     <div class="bg-slate-950 text-slate-100 rounded-2xl border border-slate-800 shadow-lg p-1 overflow-hidden">
-      <div class="bg-slate-900 p-2 border-b border-slate-800 flex justify-between items-center px-4">
-        <span class="text-[10px] font-bold text-amber-400 tracking-widest uppercase">🎮 GANG PARTY LOBBY</span>
-        <span id="bgNameBadge" class="text-[10px] bg-slate-800 text-slate-400 font-mono px-2 py-0.5 rounded-md">Scene Loading...</span>
-      </div>
-      <div id="tripAvatarsStage" class="w-full min-h-[148px] px-6 flex gap-8 justify-start items-end pb-3 overflow-x-auto" style="background-repeat: repeat-x; background-position: bottom left; background-size: auto 100%;">
-        <div id="tripAvatarsContainer" class="flex gap-7 items-end"></div>
-      </div>
+      <div class="bg-slate-900 p-2 border-b border-slate-800 flex justify-between items-center px-4"><span class="text-[10px] font-bold text-amber-400 tracking-widest uppercase">🎮 GANG PARTY LOBBY</span><span id="bgNameBadge" class="text-[10px] bg-slate-800 text-slate-400 font-mono px-2 py-0.5 rounded-md">Scene Loading...</span></div>
+      <div id="tripAvatarsStage" class="w-full min-h-[148px] px-6 flex gap-8 justify-start items-end pb-3 overflow-x-auto" style="background-repeat: repeat-x; background-position: bottom left; background-size: auto 100%;"><div id="tripAvatarsContainer" class="flex gap-7 items-end"></div></div>
     </div>
   </div>
 
   <main class="max-w-6xl w-full mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-    <section class="lg:col-span-6 bg-white p-6 rounded-2xl border border-gray-200 shadow-2xs flex flex-col">
-      <div class="flex justify-between items-center mb-3">
-        <h3 class="text-lg font-bold text-gray-900">📅 แผนการเดินทางรายวัน</h3>
-        <button id="addPlanMainBtn" onclick="openPlanModal('create')" class="text-xs bg-blue-50 text-blue-600 font-bold px-3 py-1.5 rounded-lg hover:bg-blue-100 cursor-pointer">+ เพิ่มกิจกรรม</button>
-      </div>
-      <div id="dayTabsContainer" class="flex gap-1.5 overflow-x-auto pb-3 mb-4 border-b border-gray-100"></div>
-      <div id="planTimelineContainer" class="flex-1 space-y-4 relative before:absolute before:top-2 before:bottom-2 before:left-[11px] before:w-0.5 before:bg-slate-200"></div>
-    </section>
-
-    <section class="lg:col-span-6 bg-white p-6 rounded-2xl border border-gray-200 shadow-2xs space-y-5">
-      <div>
-        <div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-100">
-          <h3 class="text-lg font-bold text-gray-900">💰 บันทึกบิลและแชร์เงิน</h3>
-          <div class="flex gap-1.5">
-            <button onclick="copyLineSummary()" class="text-xs bg-slate-100 text-slate-600 font-bold px-2.5 py-1.5 rounded-lg hover:bg-slate-200 cursor-pointer">📋 ก๊อปส่งไลน์</button>
-            <button onclick="openExpenseModal('create')" class="text-xs bg-emerald-50 text-emerald-600 font-bold px-3 py-1.5 rounded-lg hover:bg-emerald-100 cursor-pointer">+ บันทึกจ่าย</button>
-          </div>
-        </div>
-        <div id="expenseListContainer" class="space-y-2 max-h-[160px] overflow-y-auto mb-2"></div>
-      </div>
-      <div><h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">📊 สรุปยอดกระเป๋าตังค์รายคน</h4><div id="individualSummaryContainer" class="grid grid-cols-2 gap-2 max-h-[120px] overflow-y-auto"></div></div>
-      <div class="bg-blue-50/50 border border-blue-100 p-4 rounded-xl"><h4 class="text-xs font-bold text-blue-700 uppercase tracking-wider mb-2">💸 เส้นทางการโอนเงินคืน</h4><div id="debtClearInstructionsContainer" class="space-y-1.5 text-xs font-medium text-slate-700"></div></div>
-      <div class="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center"><span class="text-xs font-medium text-slate-400">ยอดรวมใช้จ่ายทั้งทริป:</span><span id="totalExpenseAmount" class="font-extrabold text-xl text-emerald-400">0 บาท</span></div>
-    </section>
+    <section class="lg:col-span-6 bg-white p-6 rounded-2xl border border-gray-200 shadow-2xs flex flex-col"><div class="flex justify-between items-center mb-3"><h3 class="text-lg font-bold text-gray-900">📅 แผนการเดินทางรายวัน</h3><button id="addPlanMainBtn" onclick="openPlanModal('create')" class="text-xs bg-blue-50 text-blue-600 font-bold px-3 py-1.5 rounded-lg hover:bg-blue-100 cursor-pointer">+ เพิ่มกิจกรรม</button></div><div id="dayTabsContainer" class="flex gap-1.5 overflow-x-auto pb-3 mb-4 border-b border-gray-100"></div><div id="planTimelineContainer" class="flex-1 space-y-4 relative before:absolute before:top-2 before:bottom-2 before:left-[11px] before:w-0.5 before:bg-slate-200"></div></section>
+    <section class="lg:col-span-6 bg-white p-6 rounded-2xl border border-gray-200 shadow-2xs space-y-5"><div><div class="flex justify-between items-center mb-4 pb-2 border-b border-gray-100"><h3 class="text-lg font-bold text-gray-900">💰 บันทึกบิลและแชร์เงิน</h3><div class="flex gap-1.5"><button onclick="copyLineSummary()" class="text-xs bg-slate-100 text-slate-600 font-bold px-2.5 py-1.5 rounded-lg hover:bg-slate-200 cursor-pointer">📋 ก๊อปส่งไลน์</button><button onclick="openExpenseModal('create')" class="text-xs bg-emerald-50 text-emerald-600 font-bold px-3 py-1.5 rounded-lg hover:bg-emerald-100 cursor-pointer">+ บันทึกจ่าย</button></div></div><div id="expenseListContainer" class="space-y-2 max-h-[160px] overflow-y-auto mb-2"></div></div><div><h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">📊 สรุปยอดกระเป๋าตังค์รายคน</h4><div id="individualSummaryContainer" class="grid grid-cols-2 gap-2 max-h-[120px] overflow-y-auto"></div></div><div class="bg-blue-50/50 border border-blue-100 p-4 rounded-xl"><h4 class="text-xs font-bold text-blue-700 uppercase tracking-wider mb-2">💸 เส้นทางการโอนเงินคืน</h4><div id="debtClearInstructionsContainer" class="space-y-1.5 text-xs font-medium text-slate-700"></div></div><div class="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center"><span class="text-xs font-medium text-slate-400">ยอดรวมใช้จ่ายทั้งทริป:</span><span id="totalExpenseAmount" class="font-extrabold text-xl text-emerald-400">0 บาท</span></div></section>
   </main>
 
   <div id="settingsModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
@@ -87,8 +49,23 @@
       <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-900 text-white shrink-0"><h3 class="text-md font-bold">⚙️ การตั้งค่าบัญชี & ระบบ</h3><button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white font-bold text-2xl cursor-pointer">×</button></div>
       <div class="p-5 overflow-y-auto space-y-5">
         <button onclick="window.location.href='avatar-builder.html'" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold py-3 rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer">🎨 เข้าห้องแต่งตัวอวตาร (Avatar Builder)</button>
-        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200"><p class="text-xs font-bold text-slate-500 uppercase mb-3">👤 แก้ไขข้อมูลส่วนตัว</p><form onsubmit="handleUpdateSelf(event)" class="space-y-3"><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-500 mb-1">ชื่อที่แสดง</label><input type="text" id="selfNameInput" required class="w-full border border-slate-300 rounded-lg p-2 text-xs font-semibold bg-white outline-none"></div><div><label class="block text-[10px] font-bold text-slate-500 mb-1">เปลี่ยนรหัสผ่าน (PS)</label><input type="text" id="selfPassInput" required maxlength="4" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono font-bold text-center bg-white outline-none"></div></div><button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 rounded-lg text-xs cursor-pointer">💾 บันทึกข้อมูลส่วนตัว</button></form></div>
-        <div id="adminSettingsSection" class="hidden border-t border-slate-200 pt-5"><p class="text-xs font-black text-amber-600 uppercase mb-3 flex items-center gap-1">👑 ห้องควบคุมเครือข่าย (Admin Panel)</p><form onsubmit="handleAdminUpdateUser(event)" class="bg-amber-50 p-3 rounded-xl border border-amber-200 space-y-3 mb-4"><div class="grid grid-cols-2 gap-2"><div><label class="block text-[10px] font-bold text-amber-800 mb-0.5">ชื่อเพื่อน</label><input type="text" id="adminFriendName" required placeholder="เพิ่ม/แก้ไขชื่อ" class="w-full border border-amber-300 rounded-lg p-1.5 text-xs bg-white"></div><div><label class="block text-[10px] font-bold text-amber-800 mb-0.5">พาสเวิร์ด (PS)</label><input type="text" id="adminFriendPass" required maxlength="4" class="w-full border border-amber-300 rounded-lg p-1.5 text-xs bg-white text-center font-bold"></div></div><button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 rounded-lg text-xs cursor-pointer">⚡ เพิ่ม / อัปเดตสิทธิ์เพื่อน</button></form><div><p class="text-[10px] font-bold text-slate-400 uppercase mb-2">📋 ข้อมูลบัญชีในเครือข่ายทั้งหมด</p><div id="adminUserTableContainer" class="space-y-1.5 max-h-[140px] overflow-y-auto pr-1"></div></div></div>
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <p class="text-xs font-bold text-slate-500 uppercase mb-3">👤 แก้ไขข้อมูลส่วนตัว</p>
+          <form onsubmit="handleUpdateSelf(event)" class="space-y-3">
+            <div><label class="block text-[10px] font-bold text-slate-500 mb-1">ID Login</label><input type="text" id="selfIdInput" disabled class="w-full border border-slate-200 bg-slate-100 text-slate-400 rounded-lg p-2 text-xs font-mono"></div>
+            <div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-500 mb-1">ชื่อเล่น (โชว์ในเว็บ)</label><input type="text" id="selfNameInput" required class="w-full border border-slate-300 rounded-lg p-2 text-xs font-semibold bg-white outline-none"></div><div><label class="block text-[10px] font-bold text-slate-500 mb-1">พาสเวิร์ด (PS)</label><input type="text" id="selfPassInput" required maxlength="4" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono font-bold text-center bg-white outline-none"></div></div>
+            <button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 rounded-lg text-xs cursor-pointer">💾 บันทึกข้อมูลส่วนตัว</button>
+          </form>
+        </div>
+        <div id="adminSettingsSection" class="hidden border-t border-slate-200 pt-5">
+          <p class="text-xs font-black text-amber-600 uppercase mb-3 flex items-center gap-1">👑 ห้องควบคุมเครือข่าย (Admin Panel)</p>
+          <form onsubmit="handleAdminUpdateUser(event)" class="bg-amber-50 p-3 rounded-xl border border-amber-200 space-y-3 mb-4">
+            <div><label class="block text-[10px] font-bold text-amber-800 mb-0.5">ID Login (ไอดีเข้าสู่ระบบ)</label><input type="text" id="adminLoginId" required placeholder="ex: mook123" class="w-full border border-amber-300 rounded-lg p-1.5 text-xs bg-white lowercase"></div>
+            <div class="grid grid-cols-2 gap-2"><div><label class="block text-[10px] font-bold text-amber-800 mb-0.5">ชื่อเล่น (โชว์ในเว็บ)</label><input type="text" id="adminDisplayName" required placeholder="ex: Mook" class="w-full border border-amber-300 rounded-lg p-1.5 text-xs bg-white"></div><div><label class="block text-[10px] font-bold text-amber-800 mb-0.5">พาสเวิร์ด (PS)</label><input type="text" id="adminFriendPass" required maxlength="4" class="w-full border border-amber-300 rounded-lg p-1.5 text-xs bg-white text-center font-bold"></div></div>
+            <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 rounded-lg text-xs cursor-pointer shadow-sm">⚡ เพิ่ม / อัปเดตสิทธิ์เพื่อน</button>
+          </form>
+          <div><p class="text-[10px] font-bold text-slate-400 uppercase mb-2">📋 ข้อมูลบัญชีในเครือข่ายทั้งหมด</p><div id="adminUserTableContainer" class="space-y-1.5 max-h-[140px] overflow-y-auto pr-1"></div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -98,25 +75,18 @@
 
   <script type="module">
     import { db } from "./js/firebase-config.js";
-    import { doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    import { doc, setDoc, getDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
     let trips = []; let allAvatars = {}; let userRegistry = [];
     let currentUserSession = JSON.parse(localStorage.getItem('gang_current_session'));
     let currentOpenTripId = localStorage.getItem('gang_current_trip_id');
     let currentSelectedDayIndex = 0; let globalFrameTick = 0;
 
-    const TOTAL_CHARACTERS = 90; 
-    const characterList = [];
+    const TOTAL_CHARACTERS = 90; const characterList = [];
     for (let i = 1; i <= TOTAL_CHARACTERS; i++) { characterList.push({ name: `สหายหมายเลข ${i}`, sprite: `assets/chars/${i}.png` }); }
-    characterList.forEach(char => {
-      if (!char.grid) {
-        char.frames = 1; const img = new Image();
-        img.onload = function() { char.frames = Math.max(1, Math.round(this.width / this.height)); }; img.src = char.sprite;
-      }
-    });
+    characterList.forEach(char => { if (!char.grid) { char.frames = 1; const img = new Image(); img.onload = function() { char.frames = Math.max(1, Math.round(this.width / this.height)); }; img.src = char.sprite; } });
 
     if (!currentUserSession || !currentOpenTripId) { window.location.href = "dashboard.html"; }
-
     function calculateTotalDaysList(start, end) { let arr = []; let dt = new Date(start); let ed = new Date(end); while(dt <= ed) { arr.push(dt.toISOString().split('T')[0]); dt.setDate(dt.getDate() + 1); if(arr.length > 30) break; } return arr; }
 
     onSnapshot(doc(db, "gang_system", "passcodes"), (docSnap) => {
@@ -125,9 +95,7 @@
     });
 
     onSnapshot(collection(db, "gang_avatars"), (snapshot) => {
-      snapshot.forEach(doc => { allAvatars[doc.id] = doc.data(); }); 
-      renderTripAvatars();
-      // อัปเดตไอคอน Avatar บน Header
+      snapshot.forEach(doc => { allAvatars[doc.id] = doc.data(); }); renderTripAvatars();
       if (allAvatars[currentUserSession.name]) {
         const charId = allAvatars[currentUserSession.name].charId || 0;
         const el = document.getElementById('headerAvatarImg');
@@ -144,8 +112,7 @@
         document.getElementById('detailTripSub').innerText = `📍 ${targetTrip.dest} | 📅 ${targetTrip.start} ถึง ${targetTrip.end}`;
         document.getElementById('detailTripMembers').innerText = `👥 สมาชิกแก๊ง: ${targetTrip.memberList.join(', ')}`;
         document.getElementById('editTripBtn').setAttribute('onclick', `window.location.href='dashboard.html'`);
-        const bgId = targetTrip.bgCode || "1";
-        document.getElementById('bgNameBadge').innerText = `🗺️ Scene #${bgId}`;
+        const bgId = targetTrip.bgCode || "1"; document.getElementById('bgNameBadge').innerText = `🗺️ Scene #${bgId}`;
         document.getElementById('tripAvatarsStage').style.backgroundImage = `url('assets/bgs/${bgId}.png')`;
         renderDayTabs(targetTrip); renderTripAvatars();
       }
@@ -166,40 +133,41 @@
 
     // ⚙️ ระบบ Settings เหมือนหน้า Dashboard
     window.openSettingsModal = function() {
-      document.getElementById('settingsModal').classList.remove('hidden'); document.getElementById('selfNameInput').value = currentUserSession.name;
-      const myData = userRegistry.find(u => u.name.toLowerCase() === currentUserSession.name.toLowerCase()); document.getElementById('selfPassInput').value = myData ? myData.passcode : '';
+      document.getElementById('settingsModal').classList.remove('hidden'); 
+      document.getElementById('selfIdInput').value = currentUserSession.loginId;
+      document.getElementById('selfNameInput').value = currentUserSession.name;
+      const myData = userRegistry.find(u => u.loginId.toLowerCase() === currentUserSession.loginId.toLowerCase()); document.getElementById('selfPassInput').value = myData ? myData.passcode : '';
       if (currentUserSession.role === 'admin') { renderAdminUserTable(); }
     };
     window.closeSettingsModal = function() { document.getElementById('settingsModal').classList.add('hidden'); };
 
     window.handleUpdateSelf = async function(e) {
       e.preventDefault(); const newName = document.getElementById('selfNameInput').value.trim(); const newPass = document.getElementById('selfPassInput').value.trim();
-      const isDuplicate = userRegistry.some(u => u.passcode === newPass && u.name.toLowerCase() !== currentUserSession.name.toLowerCase());
+      const isDuplicate = userRegistry.some(u => u.passcode === newPass && u.loginId.toLowerCase() !== currentUserSession.loginId.toLowerCase());
       if(isDuplicate) { alert("เลขนี้ห้ามใช้ ไปใช้เลขอื่นไป๊!!!"); return; }
-      const idx = userRegistry.findIndex(u => u.name.toLowerCase() === currentUserSession.name.toLowerCase());
-      if (idx !== -1) { userRegistry[idx].name = newName; userRegistry[idx].passcode = newPass; }
+      const idx = userRegistry.findIndex(u => u.loginId.toLowerCase() === currentUserSession.loginId.toLowerCase());
+      if (idx !== -1) { userRegistry[idx].displayName = newName; userRegistry[idx].passcode = newPass; }
       await saveUserRegistryToFirebase();
-      if (newName !== currentUserSession.name) { currentUserSession.name = newName; localStorage.setItem('gang_current_session', JSON.stringify(currentUserSession)); applyRoleAccess(); alert("บันทึกข้อมูลเรียบร้อย!\n(หมายเหตุ: การเปลี่ยนชื่ออาจทำให้ต้องไปแต่งตัวใหม่นะ)"); window.location.reload(); } else { alert("อัปเดตรหัสผ่านส่วนตัวสำเร็จ!"); }
+      if (newName !== currentUserSession.name) { currentUserSession.name = newName; localStorage.setItem('gang_current_session', JSON.stringify(currentUserSession)); applyRoleAccess(); alert("บันทึกข้อมูลเรียบร้อย!\n(คำเตือน: เปลี่ยนชื่อเล่นแล้วต้องเข้าไปเซฟแต่งตัว Avatar ใหม่อีกรอบนะ!)"); window.location.reload(); } else { alert("อัปเดตรหัสผ่านส่วนตัวสำเร็จ!"); }
       closeSettingsModal();
     };
 
     window.handleAdminUpdateUser = async function(event) {
-      event.preventDefault(); const fName = document.getElementById('adminFriendName').value.trim(); const fPass = document.getElementById('adminFriendPass').value.trim();
-      const isDuplicate = userRegistry.some(u => u.passcode === fPass && u.name.toLowerCase() !== fName.toLowerCase());
+      event.preventDefault(); const adminLoginId = document.getElementById('adminLoginId').value.trim(); const adminDisplayName = document.getElementById('adminDisplayName').value.trim(); const adminPass = document.getElementById('adminFriendPass').value.trim();
+      const isDuplicate = userRegistry.some(u => u.passcode === adminPass && u.loginId.toLowerCase() !== adminLoginId.toLowerCase());
       if(isDuplicate) { alert("เลขนี้ห้ามใช้ ไปใช้เลขอื่นไป๊!!!"); return; }
-      const idx = userRegistry.findIndex(u => u.name.toLowerCase() === fName.toLowerCase());
-      if (idx !== -1) userRegistry[idx].passcode = fPass; else userRegistry.push({ name: fName, passcode: fPass });
-      await saveUserRegistryToFirebase(); document.getElementById('adminFriendName').value = ''; document.getElementById('adminFriendPass').value = ''; alert(`บันทึกสิทธิ์ของ ${fName} เรียบร้อย!`);
+      const idx = userRegistry.findIndex(u => u.loginId.toLowerCase() === adminLoginId.toLowerCase());
+      if (idx !== -1) { userRegistry[idx].displayName = adminDisplayName; userRegistry[idx].passcode = adminPass; } else { userRegistry.push({ loginId: adminLoginId.toLowerCase(), displayName: adminDisplayName, passcode: adminPass }); }
+      await saveUserRegistryToFirebase(); document.getElementById('adminLoginId').value = ''; document.getElementById('adminDisplayName').value = ''; document.getElementById('adminFriendPass').value = ''; alert(`บันทึกสิทธิ์ของ ${adminDisplayName} เรียบร้อย!`);
     };
 
-    window.deleteUserPasscode = async function(name) { if (confirm(`เตะ ${name} ออกจากระบบ ใช่ไหม?`)) { userRegistry = userRegistry.filter(u => u.name !== name); await saveUserRegistryToFirebase(); } };
+    window.deleteUserPasscode = async function(loginId, dispName) { if (confirm(`เตะ ${dispName} ออกจากระบบ ใช่ไหม?`)) { userRegistry = userRegistry.filter(u => u.loginId !== loginId); await saveUserRegistryToFirebase(); } };
 
     function renderAdminUserTable() {
       const table = document.getElementById('adminUserTableContainer'); if(!table) return; table.innerHTML = '';
-      userRegistry.forEach(u => { table.innerHTML += `<div class="flex justify-between items-center bg-white border border-slate-200 p-2 rounded-xl text-xs shadow-2xs"><div><span class="font-bold text-slate-700 mr-2">👤 ${u.name}</span><span class="font-mono text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md">PS: ${u.passcode}</span></div><button onclick="deleteUserPasscode('${u.name}')" class="text-red-500 hover:bg-red-50 rounded px-1.5 py-0.5 cursor-pointer">🗑ลบ</button></div>`; });
+      userRegistry.forEach(u => { table.innerHTML += `<div class="flex justify-between items-center bg-white border border-slate-200 p-2 rounded-xl text-xs shadow-2xs"><div class="flex flex-col"><span class="font-bold text-slate-700">👤 ${u.displayName}</span><span class="text-[9px] text-slate-400">ID: ${u.loginId}</span></div><div class="flex items-center gap-2"><span class="font-mono text-[10px] text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md">PS: ${u.passcode}</span><button onclick="deleteUserPasscode('${u.loginId}', '${u.displayName}')" class="text-red-500 hover:bg-red-50 rounded px-1.5 py-0.5 cursor-pointer">🗑ลบ</button></div></div>`; });
     }
 
-    // ฟังก์ชันรันเวย์สไปรท์ชีท (คงเดิม)
     function renderTripAvatars() {
       const targetTrip = trips.find(t => t.id === currentOpenTripId); if (!targetTrip) return; const container = document.getElementById('tripAvatarsContainer'); if (!container) return; container.innerHTML = '';
       targetTrip.memberList.forEach(name => {
@@ -227,7 +195,7 @@
       });
     }, 150);
 
-    // ฟังก์ชันวาดหน้าและบิล (คงเดิม)
+    // วาดแผนและบิล (เหมือนเดิม)
     function renderDayTabs(trip) { const container = document.getElementById('dayTabsContainer'); if(!container) return; container.innerHTML = ''; calculateTotalDaysList(trip.start, trip.end).forEach((dateStr, idx) => { const isActive = idx === currentSelectedDayIndex; const btnStyle = isActive ? "bg-blue-600 text-white font-bold" : "bg-gray-100 text-gray-600"; container.innerHTML += `<button onclick="switchDayTab(${idx})" class="text-xs px-3 py-2 rounded-xl whitespace-nowrap shrink-0 cursor-pointer ${btnStyle}">วันที่ ${idx + 1} (${dateStr.substring(5)})</button>`; }); }
     window.switchDayTab = function(idx) { currentSelectedDayIndex = idx; renderPlansAndExpenses(); const targetTrip = trips.find(t => t.id === currentOpenTripId); if(targetTrip) renderDayTabs(targetTrip); };
     function renderPlansAndExpenses() {
