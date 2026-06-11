@@ -5,79 +5,116 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GangTrip - เข้าสู่ระบบ</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    /* สไตล์คุมลายเส้นพิกเซลอาร์ท */
+    .pixel-board { image-rendering: pixelated; image-rendering: crisp-edges; }
+  </style>
 </head>
-<body class="min-h-screen bg-slate-50 font-sans m-0 text-slate-800">
+<body class="min-h-screen bg-slate-900 font-sans m-0 text-slate-100 flex items-center justify-center bg-[radial-gradient(#1e293b_1px,transparent_1px)] [background-size:16px_16px]">
 
-  <div class="min-h-screen flex flex-col justify-between bg-gradient-to-br from-blue-50 via-white to-teal-50">
-    <header class="p-6 flex justify-between items-center max-w-6xl w-full mx-auto">
-      <div class="flex items-center gap-2">
-        <span class="text-2xl">✈️</span>
-        <h1 class="text-xl font-bold bg-gradient-to-r from-blue-600 to-teal-600 bg-clip-text text-transparent">GangTrip</h1>
-      </div>
-      <span class="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">v5.2 ประตูหน้า (Global Fix)</span>
-    </header>
-
-    <main class="flex-1 flex flex-col items-center justify-center text-center px-4 max-w-3xl mx-auto -mt-6">
-      <div class="inline-block bg-blue-100 text-blue-800 text-xs px-3 py-1 rounded-full font-semibold uppercase tracking-wider mb-4">Cloud Authentication</div>
-      <h2 class="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight mb-6">
-        วางแผนเที่ยวกับแก๊งเพื่อน <br>
-        <span class="bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">ระบบล็อกสิทธิ์ฐานข้อมูลคลาวด์</span>
-      </h2>
+  <div class="w-full max-w-sm px-4">
+    <div class="bg-slate-950/80 backdrop-blur-md p-8 rounded-3xl border border-slate-800 shadow-2xl relative overflow-hidden">
+      <div class="absolute -top-10 -right-10 w-32 h-32 bg-blue-600/20 rounded-full blur-2xl pointer-events-none"></div>
+      <div class="absolute -bottom-10 -left-10 w-32 h-32 bg-emerald-600/20 rounded-full blur-2xl pointer-events-none"></div>
       
-      <div class="bg-white p-6 rounded-2xl shadow-xl border border-gray-100 max-w-sm w-full mx-auto">
-        <label class="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">🔑 กรอกรหัสผ่านเข้าใช้งาน (ADMIN หรือ รหัสส่วนตัว)</label>
-        <input type="password" id="gangPasscode" placeholder="••••" maxlength="8" class="w-full text-center tracking-widest border border-gray-200 bg-slate-50 rounded-xl px-3 py-3 text-2xl font-black mb-4 focus:outline-none focus:border-blue-500 focus:bg-white focus:ring-4 focus:ring-blue-50/50">
-        <button onclick="checkPasscode()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl text-sm hover:bg-blue-700 shadow-md transition-all active:scale-98 cursor-pointer">
-          ยืนยันรหัสผ่านเข้าสู่แอป →
-        </button>
-        <p id="passcodeError" class="text-xs text-red-500 mt-3 font-semibold hidden">❌ ไม่พบรหัสผ่านนี้ในฐานข้อมูลคลาวด์!</p>
+      <div class="text-center mb-8 relative z-10">
+        <div class="text-4xl mb-3 inline-block drop-shadow-md">✈️</div>
+        <h1 class="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-400 to-orange-500 tracking-wider drop-shadow-sm uppercase">GangTrip</h1>
+        <p class="text-xs text-slate-400 mt-2 font-medium tracking-widest uppercase">Travel & Share Board</p>
       </div>
-    </main>
-    <footer class="p-6 text-center text-xs text-gray-400 border-t border-gray-100 w-full">© 2026 GangTrip Cloud</footer>
+
+      <form id="loginForm" class="space-y-5 relative z-10">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">👤 ชื่อผู้เล่น (Display Name)</label>
+          <input type="text" id="loginName" required placeholder="เช่น Mook, เดฟ" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-sm text-white font-bold focus:outline-none focus:border-blue-500 transition-colors shadow-inner">
+        </div>
+        
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5">🔑 รหัสผ่าน 4 หลัก (PS)</label>
+          <input type="password" id="loginPass" required maxlength="4" placeholder="••••" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-center text-lg text-white font-mono font-bold focus:outline-none focus:border-blue-500 transition-colors shadow-inner tracking-[0.5em]">
+        </div>
+
+        <button type="submit" id="submitBtn" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-extrabold py-3.5 rounded-xl text-sm tracking-wider shadow-lg transition-transform active:scale-95 cursor-pointer flex justify-center items-center gap-2 mt-4 border border-blue-500/50">
+          🚀 เข้าสู่ระบบ
+        </button>
+      </form>
+      
+      <p class="text-center text-[10px] text-slate-500 mt-6 font-medium">
+        ยังไม่มีรหัส? ให้แอดมินสร้างสิทธิ์ให้ก่อนนะจ๊ะ
+      </p>
+    </div>
   </div>
 
   <script type="module">
     import { db } from "./js/firebase-config.js";
     import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    // ตรวจสอบเซสชันเก่า ถ้าเครื่องนี้เคยล็อกอินค้างไว้แล้ว ให้วาร์ปข้ามหน้าแรกไปหน้าแดชบอร์ดเลย
-    const savedSession = localStorage.getItem('gang_current_session');
-    if (savedSession) {
-      window.location.href = "dashboard.html";
-    }
+    // ถ้าเคยล็อกอินค้างไว้ ให้เด้งไปหน้า Dashboard เลย
+    const existingSession = localStorage.getItem('gang_current_session');
+    if (existingSession) { window.location.href = "dashboard.html"; }
 
-    // 🔥 ส่งออกฟังก์ชันพาสเวิร์ดออกไปนอก Module เพื่อให้ปุ่ม HTML ด้านบนมองเห็นและกดเรียกใช้ได้จริง
-    window.checkPasscode = async function() {
-      const inputCode = document.getElementById('gangPasscode').value.trim();
-      let sessionData = null;
+    const loginForm = document.getElementById('loginForm');
+    const submitBtn = document.getElementById('submitBtn');
 
-      if (inputCode === '2308') {
-        sessionData = { name: 'เดฟ (ADMIN)', role: 'admin' };
-      } else {
-        try {
-          // ดึงรายชื่อพาสเวิร์ดเพื่อนๆ ล่าสุดจากคลาวด์มาสแกนดู
-          const docSnap = await getDoc(doc(db, "gang_system", "passcodes"));
-          if (docSnap.exists()) {
-            const userRegistry = docSnap.data().users || [];
-            const foundUser = userRegistry.find(u => u.passcode === inputCode);
-            if (foundUser) {
-              sessionData = { name: foundUser.name, role: 'user' };
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const inputName = document.getElementById('loginName').value.trim();
+      const inputPass = document.getElementById('loginPass').value.trim();
+
+      // เปลี่ยนปุ่มเป็นสถานะกำลังโหลด
+      const originalBtnText = submitBtn.innerHTML;
+      submitBtn.innerHTML = `⏳ กำลังตรวจสอบ...`;
+      submitBtn.disabled = true;
+
+      try {
+        // ดึงข้อมูลรายชื่อเพื่อนและพาสเวิร์ดจาก Firebase
+        const docRef = doc(db, "gang_system", "passcodes");
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const users = docSnap.data().users || [];
+          
+          // ค้นหาชื่อที่กรอกเข้ามา (แปลงเป็นตัวพิมพ์เล็กหมดเพื่อกันการพิมพ์เล็กใหญ่ผิด)
+          const foundUser = users.find(u => u.name.toLowerCase() === inputName.toLowerCase());
+
+          if (!foundUser) {
+            // กรณีที่ 1: หาชื่อไม่เจอ
+            alert("❌ ไม่พบชื่อนี้ในระบบ หรือยังไม่ได้รับสิทธิ์เข้าใช้งาน! ติดต่อแอดมินด่วน!");
+          } else if (foundUser.passcode !== inputPass) {
+            // 🚨 กรณีที่ 2: ใส่พาสเวิร์ดผิด (จุดที่คุณเดฟรีเควส)
+            alert("ใส่รหัสผิดนะจ๊ะ");
+          } else {
+            // ✅ กรณีที่ 3: ผ่านฉลุย!
+            
+            // 👑 กำหนดสิทธิ์: ถ้าชื่อคือ 'เดฟ' หรือ 'admin' ให้ได้รับสิทธิ์แอดมินอัตโนมัติ
+            let role = 'user';
+            if (foundUser.name.toLowerCase() === 'เดฟ' || foundUser.name.toLowerCase() === 'admin') {
+              role = 'admin';
             }
+
+            // บันทึก Session ลงเครื่อง
+            const sessionData = { 
+              name: foundUser.name, // ใช้ชื่อตามที่บันทึกในระบบเป๊ะๆ (ตัวเล็ก-ใหญ่)
+              role: role 
+            };
+            localStorage.setItem('gang_current_session', JSON.stringify(sessionData));
+            
+            // เด้งไปหน้าหลัก
+            window.location.href = "dashboard.html";
           }
-        } catch (err) {
-          console.error("Firebase Error:", err);
-          alert("เกิดข้อผิดพลาดในการเชื่อมต่อคลาวด์");
+        } else {
+          alert("⚠️ ไม่พบฐานข้อมูลระบบใน Firebase ครับ (Admin ต้องไปสร้าง Database ก่อน)");
         }
+      } catch (error) {
+        console.error("Login Error:", error);
+        alert("🔌 เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์ กรุณาลองใหม่");
       }
 
-      if (sessionData) {
-        // เซฟเซสชันสิทธิ์ลงคอมเครื่องนี้ และสั่งวาร์ปบราวเซอร์เปลี่ยนหน้าไฟล์ทันที!
-        localStorage.setItem('gang_current_session', JSON.stringify(sessionData));
-        window.location.href = "dashboard.html";
-      } else {
-        document.getElementById('passcodeError').classList.remove('hidden');
-      }
-    };
+      // คืนค่าปุ่มกลับมาเหมือนเดิม
+      submitBtn.innerHTML = originalBtnText;
+      submitBtn.disabled = false;
+    });
   </script>
 </body>
 </html>

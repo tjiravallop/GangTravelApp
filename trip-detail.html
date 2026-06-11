@@ -9,15 +9,37 @@
 </head>
 <body class="min-h-screen bg-slate-50 font-sans m-0 text-slate-800">
 
-  <div class="bg-white border-b border-gray-200 py-3 px-4 shadow-2xs">
-    <div class="max-w-6xl mx-auto flex items-center justify-between">
-      <button onclick="window.location.href='dashboard.html'" class="text-sm font-semibold text-blue-600 hover:text-blue-800 flex items-center gap-1 cursor-pointer">← แดชบอร์ด</button>
-      <div class="text-center max-w-xs sm:max-w-md">
-        <h2 id="detailTripTitle" class="text-xl font-bold text-gray-900 truncate">ชื่อทริป</h2>
-        <p id="detailTripSub" class="text-xs text-gray-500 truncate">วันเวลาและพิกัด</p>
-        <p id="detailTripMembers" class="text-[11px] text-teal-600 font-medium mt-0.5 truncate">👥 สมาชิก:</p>
+  <header class="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-xs">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+      <div class="flex items-center gap-2 cursor-pointer" onclick="window.location.href='dashboard.html'">
+        <span class="text-2xl">✈️</span>
+        <span class="text-xl font-black text-gray-900 tracking-tight hidden sm:inline">GangTrip</span>
       </div>
-      <button id="editTripBtn" class="text-xs bg-gray-100 hover:bg-gray-200 text-gray-600 font-medium px-3 py-1.5 rounded-lg cursor-pointer">⚙️ ตั้งค่าทริป</button>
+      <div class="text-center max-w-[50%]">
+        <h2 id="detailTripTitle" class="text-sm font-bold text-gray-900 truncate">กำลังโหลด...</h2>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="openSettingsModal()" class="flex items-center gap-2 bg-slate-50 hover:bg-slate-100 p-1.5 pr-3 rounded-full transition-all cursor-pointer shadow-sm border border-slate-200 group">
+          <div class="w-8 h-8 rounded-full bg-slate-800 overflow-hidden relative flex-shrink-0 border border-slate-300 group-hover:scale-105 transition-transform">
+            <div id="headerAvatarImg" class="absolute inset-0 w-full h-full pixel-board" style="background-image: url('assets/chars/1.png'); background-size: cover; background-position: left center;"></div>
+          </div>
+          <div class="text-left hidden md:block">
+            <p id="navUserDisplayName" class="text-xs font-bold text-slate-700 leading-tight">Loading...</p>
+            <p id="navUserRoleBadge" class="text-[9px] font-bold text-blue-500 uppercase tracking-wider">User</p>
+          </div>
+        </button>
+        <button onclick="logoutGang()" class="w-10 h-10 rounded-full bg-red-50 hover:bg-red-500 text-red-500 hover:text-white flex items-center justify-center font-bold transition-all cursor-pointer shadow-sm" title="ออกจากระบบ">🚪</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="bg-slate-100 border-b border-slate-200 py-2 px-4 shadow-inner">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div>
+        <p id="detailTripSub" class="text-xs text-slate-600 truncate">วันเวลาและพิกัด</p>
+        <p id="detailTripMembers" class="text-[10px] text-teal-600 font-bold mt-0.5 truncate">👥 สมาชิก:</p>
+      </div>
+      <button id="editTripBtn" class="text-xs bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold px-3 py-1.5 rounded-lg cursor-pointer shadow-2xs">⚙️ ตั้งค่าทริป</button>
     </div>
   </div>
 
@@ -54,75 +76,63 @@
         </div>
         <div id="expenseListContainer" class="space-y-2 max-h-[160px] overflow-y-auto mb-2"></div>
       </div>
-      <div>
-        <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">📊 สรุปยอดกระเป๋าตังค์รายคน</h4>
-        <div id="individualSummaryContainer" class="grid grid-cols-2 gap-2 max-h-[120px] overflow-y-auto"></div>
-      </div>
-      <div class="bg-blue-50/50 border border-blue-100 p-4 rounded-xl">
-        <h4 class="text-xs font-bold text-blue-700 uppercase tracking-wider mb-2">💸 เส้นทางการโอนเงินคืน</h4>
-        <div id="debtClearInstructionsContainer" class="space-y-1.5 text-xs font-medium text-slate-700"></div>
-      </div>
-      <div class="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center">
-        <span class="text-xs font-medium text-slate-400">ยอดรวมใช้จ่ายทั้งทริป:</span>
-        <span id="totalExpenseAmount" class="font-extrabold text-xl text-emerald-400">0 บาท</span>
-      </div>
+      <div><h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">📊 สรุปยอดกระเป๋าตังค์รายคน</h4><div id="individualSummaryContainer" class="grid grid-cols-2 gap-2 max-h-[120px] overflow-y-auto"></div></div>
+      <div class="bg-blue-50/50 border border-blue-100 p-4 rounded-xl"><h4 class="text-xs font-bold text-blue-700 uppercase tracking-wider mb-2">💸 เส้นทางการโอนเงินคืน</h4><div id="debtClearInstructionsContainer" class="space-y-1.5 text-xs font-medium text-slate-700"></div></div>
+      <div class="bg-slate-900 text-white p-4 rounded-xl flex justify-between items-center"><span class="text-xs font-medium text-slate-400">ยอดรวมใช้จ่ายทั้งทริป:</span><span id="totalExpenseAmount" class="font-extrabold text-xl text-emerald-400">0 บาท</span></div>
     </section>
   </main>
 
-  <div id="planModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-6 space-y-4">
-      <h3 id="planModalTitle" class="text-md font-bold text-gray-900">📌 กิจกรรมลง Timeline</h3>
-      <form onsubmit="handlePlanSubmit(event)" class="space-y-3">
-        <input type="hidden" id="editPlanId"><div class="grid grid-cols-2 gap-2"><div><label class="block text-xs font-bold text-gray-500 mb-1">เลือกเดินทางวันที่</label><select id="planDaySelect" class="w-full border border-gray-300 rounded-xl px-2 py-2 text-sm bg-white"></select></div><div><label class="block text-xs font-bold text-gray-500 mb-1">เวลา</label><input type="time" id="planTime" required class="w-full border border-gray-300 rounded-xl px-3 py-1.5 text-sm"></div></div><div><label class="block text-xs font-bold text-gray-500 mb-1">ชื่อสถานที่ / กิจกรรม</label><input type="text" id="planTitle" required placeholder="เช่น กินกาแฟ คาเฟ่เก๋ๆ" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm"></div><div><label class="block text-xs font-bold text-gray-500 mb-1">📍 ลิงก์แผนที่ Google Maps</label><input type="url" id="planMapUrl" placeholder="http://..." class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm text-blue-600 font-mono"></div><div class="flex gap-2 pt-2"><button type="button" onclick="closePlanModal()" class="flex-1 bg-gray-100 py-2 rounded-lg text-xs cursor-pointer">ยกเลิก</button><button type="submit" id="planSubmitBtn" class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-xs cursor-pointer">บันทึกแผน</button></div>
-      </form>
+  <div id="settingsModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+    <div class="bg-white w-full max-w-md rounded-2xl shadow-xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-900 text-white shrink-0"><h3 class="text-md font-bold">⚙️ การตั้งค่าบัญชี & ระบบ</h3><button onclick="closeSettingsModal()" class="text-slate-400 hover:text-white font-bold text-2xl cursor-pointer">×</button></div>
+      <div class="p-5 overflow-y-auto space-y-5">
+        <button onclick="window.location.href='avatar-builder.html'" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold py-3 rounded-xl shadow-md transition-transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer">🎨 เข้าห้องแต่งตัวอวตาร (Avatar Builder)</button>
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200"><p class="text-xs font-bold text-slate-500 uppercase mb-3">👤 แก้ไขข้อมูลส่วนตัว</p><form onsubmit="handleUpdateSelf(event)" class="space-y-3"><div class="grid grid-cols-2 gap-3"><div><label class="block text-[10px] font-bold text-slate-500 mb-1">ชื่อที่แสดง</label><input type="text" id="selfNameInput" required class="w-full border border-slate-300 rounded-lg p-2 text-xs font-semibold bg-white outline-none"></div><div><label class="block text-[10px] font-bold text-slate-500 mb-1">เปลี่ยนรหัสผ่าน (PS)</label><input type="text" id="selfPassInput" required maxlength="4" class="w-full border border-slate-300 rounded-lg p-2 text-xs font-mono font-bold text-center bg-white outline-none"></div></div><button type="submit" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 rounded-lg text-xs cursor-pointer">💾 บันทึกข้อมูลส่วนตัว</button></form></div>
+        <div id="adminSettingsSection" class="hidden border-t border-slate-200 pt-5"><p class="text-xs font-black text-amber-600 uppercase mb-3 flex items-center gap-1">👑 ห้องควบคุมเครือข่าย (Admin Panel)</p><form onsubmit="handleAdminUpdateUser(event)" class="bg-amber-50 p-3 rounded-xl border border-amber-200 space-y-3 mb-4"><div class="grid grid-cols-2 gap-2"><div><label class="block text-[10px] font-bold text-amber-800 mb-0.5">ชื่อเพื่อน</label><input type="text" id="adminFriendName" required placeholder="เพิ่ม/แก้ไขชื่อ" class="w-full border border-amber-300 rounded-lg p-1.5 text-xs bg-white"></div><div><label class="block text-[10px] font-bold text-amber-800 mb-0.5">พาสเวิร์ด (PS)</label><input type="text" id="adminFriendPass" required maxlength="4" class="w-full border border-amber-300 rounded-lg p-1.5 text-xs bg-white text-center font-bold"></div></div><button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-1.5 rounded-lg text-xs cursor-pointer">⚡ เพิ่ม / อัปเดตสิทธิ์เพื่อน</button></form><div><p class="text-[10px] font-bold text-slate-400 uppercase mb-2">📋 ข้อมูลบัญชีในเครือข่ายทั้งหมด</p><div id="adminUserTableContainer" class="space-y-1.5 max-h-[140px] overflow-y-auto pr-1"></div></div></div>
+      </div>
     </div>
   </div>
 
-  <div id="expenseModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50">
-    <div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-6 space-y-4">
-      <h3 id="expenseModalTitle" class="text-md font-bold text-gray-900">💸 บันทึกบิลค่าใช้จ่ายกองกลาง</h3>
-      <form onsubmit="handleExpenseSubmit(event)" class="space-y-3">
-        <input type="hidden" id="editExpenseId"><div class="grid grid-cols-2 gap-2"><div><label class="block text-xs font-bold text-gray-500 mb-1">👑 ใครสำรองจ่ายก่อน?</label><select id="expensePayerSelect" required class="w-full border border-gray-300 rounded-xl px-2 py-2 text-sm bg-white"></select></div><div><label class="block text-xs font-bold text-gray-500 mb-1">จำนวนเงินรวม (บาท)</label><input type="number" id="expenseAmount" required placeholder="1200" class="w-full border border-gray-300 rounded-xl px-3 py-1.5 text-sm"></div></div><div><label class="block text-xs font-bold text-gray-500 mb-1">จ่ายค่าอะไร?</label><input type="text" id="expenseTitle" required placeholder="ค่าที่พัก, ค่ากินชาบู" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm"></div><div><label class="block text-xs font-bold text-gray-500 mb-1">🖼️ ลิงก์รูปภาพสลิป/หลักฐาน</label><input type="url" id="expenseReceiptUrl" placeholder="https://..." class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm font-mono"></div><div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><label class="block text-xs font-bold text-blue-600 mb-1.5">🎯 เลือกเพื่อนร่วมหารบิลนี้:</label><div id="splitMembersCheckboxContainer" class="grid grid-cols-2 gap-2 text-xs"></div></div><div class="flex gap-2 pt-2"><button type="button" onclick="closeExpenseModal()" class="flex-1 bg-gray-100 py-2 rounded-lg text-xs cursor-pointer">ยกเลิก</button><button type="submit" id="expenseSubmitBtn" class="flex-1 bg-emerald-600 text-white py-2 rounded-lg text-xs cursor-pointer">บันทึกบิล</button></div>
-      </form>
-    </div>
-  </div>
+  <div id="planModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50"><div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-6 space-y-4"><h3 id="planModalTitle" class="text-md font-bold text-gray-900">📌 กิจกรรมลง Timeline</h3><form onsubmit="handlePlanSubmit(event)" class="space-y-3"><input type="hidden" id="editPlanId"><div class="grid grid-cols-2 gap-2"><div><label class="block text-xs font-bold text-gray-500 mb-1">เลือกเดินทางวันที่</label><select id="planDaySelect" class="w-full border border-gray-300 rounded-xl px-2 py-2 text-sm bg-white"></select></div><div><label class="block text-xs font-bold text-gray-500 mb-1">เวลา</label><input type="time" id="planTime" required class="w-full border border-gray-300 rounded-xl px-3 py-1.5 text-sm"></div></div><div><label class="block text-xs font-bold text-gray-500 mb-1">ชื่อสถานที่ / กิจกรรม</label><input type="text" id="planTitle" required placeholder="เช่น กินกาแฟ คาเฟ่เก๋ๆ" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm"></div><div><label class="block text-xs font-bold text-gray-500 mb-1">📍 ลิงก์แผนที่ Google Maps</label><input type="url" id="planMapUrl" placeholder="http://..." class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm text-blue-600 font-mono"></div><div class="flex gap-2 pt-2"><button type="button" onclick="closePlanModal()" class="flex-1 bg-gray-100 py-2 rounded-lg text-xs cursor-pointer">ยกเลิก</button><button type="submit" id="planSubmitBtn" class="flex-1 bg-blue-600 text-white py-2 rounded-lg text-xs cursor-pointer">บันทึกแผน</button></div></form></div></div>
+  <div id="expenseModal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50"><div class="bg-white w-full max-w-sm rounded-2xl shadow-xl p-6 space-y-4"><h3 id="expenseModalTitle" class="text-md font-bold text-gray-900">💸 บันทึกบิลค่าใช้จ่ายกองกลาง</h3><form onsubmit="handleExpenseSubmit(event)" class="space-y-3"><input type="hidden" id="editExpenseId"><div class="grid grid-cols-2 gap-2"><div><label class="block text-xs font-bold text-gray-500 mb-1">👑 ใครสำรองจ่ายก่อน?</label><select id="expensePayerSelect" required class="w-full border border-gray-300 rounded-xl px-2 py-2 text-sm bg-white"></select></div><div><label class="block text-xs font-bold text-gray-500 mb-1">จำนวนเงินรวม (บาท)</label><input type="number" id="expenseAmount" required placeholder="1200" class="w-full border border-gray-300 rounded-xl px-3 py-1.5 text-sm"></div></div><div><label class="block text-xs font-bold text-gray-500 mb-1">จ่ายค่าอะไร?</label><input type="text" id="expenseTitle" required placeholder="ค่าที่พัก, ค่ากินชาบู" class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm"></div><div><label class="block text-xs font-bold text-gray-500 mb-1">🖼️ ลิงก์รูปภาพสลิป/หลักฐาน</label><input type="url" id="expenseReceiptUrl" placeholder="https://..." class="w-full border border-gray-300 rounded-xl px-3 py-2 text-sm font-mono"></div><div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><label class="block text-xs font-bold text-blue-600 mb-1.5">🎯 เลือกเพื่อนร่วมหารบิลนี้:</label><div id="splitMembersCheckboxContainer" class="grid grid-cols-2 gap-2 text-xs"></div></div><div class="flex gap-2 pt-2"><button type="button" onclick="closeExpenseModal()" class="flex-1 bg-gray-100 py-2 rounded-lg text-xs cursor-pointer">ยกเลิก</button><button type="submit" id="expenseSubmitBtn" class="flex-1 bg-emerald-600 text-white py-2 rounded-lg text-xs cursor-pointer">บันทึกบิล</button></div></form></div></div>
 
   <script type="module">
     import { db } from "./js/firebase-config.js";
     import { doc, setDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    let trips = []; let allAvatars = {}; 
+    let trips = []; let allAvatars = {}; let userRegistry = [];
     let currentUserSession = JSON.parse(localStorage.getItem('gang_current_session'));
     let currentOpenTripId = localStorage.getItem('gang_current_trip_id');
     let currentSelectedDayIndex = 0; let globalFrameTick = 0;
 
-    // 🎯 [ระบบสแกนตัวละครออโต้] เซ็ตจำนวน 90 ตัว
     const TOTAL_CHARACTERS = 90; 
     const characterList = [];
-    for (let i = 1; i <= TOTAL_CHARACTERS; i++) {
-      // โค้ดสร้างสหายเป็นแถวยาวอัตโนมัติ 
-      // (ถ้าตัวไหนเป็น Grid ค่อยมาเขียนดัก if (i === 2) ตรงนี้ทีหลังได้ครับ)
-      characterList.push({ name: `สหายหมายเลข ${i}`, sprite: `assets/chars/${i}.png` });
-    }
-
+    for (let i = 1; i <= TOTAL_CHARACTERS; i++) { characterList.push({ name: `สหายหมายเลข ${i}`, sprite: `assets/chars/${i}.png` }); }
     characterList.forEach(char => {
       if (!char.grid) {
         char.frames = 1; const img = new Image();
-        img.onload = function() { char.frames = Math.max(1, Math.round(this.width / this.height)); };
-        img.src = char.sprite;
+        img.onload = function() { char.frames = Math.max(1, Math.round(this.width / this.height)); }; img.src = char.sprite;
       }
     });
 
     if (!currentUserSession || !currentOpenTripId) { window.location.href = "dashboard.html"; }
 
-    function calculateTotalDaysList(start, end) {
-      let arr = []; let dt = new Date(start); let ed = new Date(end);
-      while(dt <= ed) { arr.push(dt.toISOString().split('T')[0]); dt.setDate(dt.getDate() + 1); if(arr.length > 30) break; }
-      return arr;
-    }
+    function calculateTotalDaysList(start, end) { let arr = []; let dt = new Date(start); let ed = new Date(end); while(dt <= ed) { arr.push(dt.toISOString().split('T')[0]); dt.setDate(dt.getDate() + 1); if(arr.length > 30) break; } return arr; }
+
+    onSnapshot(doc(db, "gang_system", "passcodes"), (docSnap) => {
+      if (docSnap.exists()) { userRegistry = docSnap.data().users || []; }
+      if (!document.getElementById('settingsModal').classList.contains('hidden')) { renderAdminUserTable(); }
+    });
 
     onSnapshot(collection(db, "gang_avatars"), (snapshot) => {
-      snapshot.forEach(doc => { allAvatars[doc.id] = doc.data(); }); renderTripAvatars();
+      snapshot.forEach(doc => { allAvatars[doc.id] = doc.data(); }); 
+      renderTripAvatars();
+      // อัปเดตไอคอน Avatar บน Header
+      if (allAvatars[currentUserSession.name]) {
+        const charId = allAvatars[currentUserSession.name].charId || 0;
+        const el = document.getElementById('headerAvatarImg');
+        if(el) el.style.backgroundImage = `url('assets/chars/${charId + 1}.png')`;
+      }
     });
 
     onSnapshot(doc(db, "gang_system", "trips_data"), (docSnap) => {
@@ -134,194 +144,107 @@
         document.getElementById('detailTripSub').innerText = `📍 ${targetTrip.dest} | 📅 ${targetTrip.start} ถึง ${targetTrip.end}`;
         document.getElementById('detailTripMembers').innerText = `👥 สมาชิกแก๊ง: ${targetTrip.memberList.join(', ')}`;
         document.getElementById('editTripBtn').setAttribute('onclick', `window.location.href='dashboard.html'`);
-        
-        // 🗺️ ปูฉากหลังรวมแบบออโต้ตามตัวเลขไฟล์
         const bgId = targetTrip.bgCode || "1";
         document.getElementById('bgNameBadge').innerText = `🗺️ Scene #${bgId}`;
         document.getElementById('tripAvatarsStage').style.backgroundImage = `url('assets/bgs/${bgId}.png')`;
-
         renderDayTabs(targetTrip); renderTripAvatars();
       }
     });
 
     function applyRoleAccess() {
-      const editTripBtn = document.getElementById('editTripBtn');
-      const addPlanBtn = document.getElementById('addPlanMainBtn');
-      if (editTripBtn) editTripBtn.classList.remove('hidden');
-      if (addPlanBtn) addPlanBtn.classList.remove('hidden');
+      document.getElementById('navUserDisplayName').innerText = currentUserSession.name;
+      document.getElementById('navUserRoleBadge').innerText = currentUserSession.role === 'admin' ? '👑 Admin' : '👥 User';
+      if (currentUserSession.role === 'admin') { document.getElementById('adminSettingsSection').classList.remove('hidden'); }
+      const editTripBtn = document.getElementById('editTripBtn'); const addPlanBtn = document.getElementById('addPlanMainBtn');
+      if (editTripBtn) editTripBtn.classList.remove('hidden'); if (addPlanBtn) addPlanBtn.classList.remove('hidden');
     }
     applyRoleAccess();
 
+    window.logoutGang = function() { if (confirm('ต้องการออกจากระบบใช่ไหมครับ?')) { localStorage.removeItem('gang_current_session'); window.location.href = "index.html"; } };
+    async function saveUserRegistryToFirebase() { await setDoc(doc(db, "gang_system", "passcodes"), { users: userRegistry }); }
     async function saveTripsToFirebase() { await setDoc(doc(db, "gang_system", "trips_data"), { list: trips }); }
 
-    function renderTripAvatars() {
-      const targetTrip = trips.find(t => t.id === currentOpenTripId); if (!targetTrip) return;
-      const container = document.getElementById('tripAvatarsContainer'); if (!container) return;
-      container.innerHTML = '';
+    // ⚙️ ระบบ Settings เหมือนหน้า Dashboard
+    window.openSettingsModal = function() {
+      document.getElementById('settingsModal').classList.remove('hidden'); document.getElementById('selfNameInput').value = currentUserSession.name;
+      const myData = userRegistry.find(u => u.name.toLowerCase() === currentUserSession.name.toLowerCase()); document.getElementById('selfPassInput').value = myData ? myData.passcode : '';
+      if (currentUserSession.role === 'admin') { renderAdminUserTable(); }
+    };
+    window.closeSettingsModal = function() { document.getElementById('settingsModal').classList.add('hidden'); };
 
+    window.handleUpdateSelf = async function(e) {
+      e.preventDefault(); const newName = document.getElementById('selfNameInput').value.trim(); const newPass = document.getElementById('selfPassInput').value.trim();
+      const isDuplicate = userRegistry.some(u => u.passcode === newPass && u.name.toLowerCase() !== currentUserSession.name.toLowerCase());
+      if(isDuplicate) { alert("เลขนี้ห้ามใช้ ไปใช้เลขอื่นไป๊!!!"); return; }
+      const idx = userRegistry.findIndex(u => u.name.toLowerCase() === currentUserSession.name.toLowerCase());
+      if (idx !== -1) { userRegistry[idx].name = newName; userRegistry[idx].passcode = newPass; }
+      await saveUserRegistryToFirebase();
+      if (newName !== currentUserSession.name) { currentUserSession.name = newName; localStorage.setItem('gang_current_session', JSON.stringify(currentUserSession)); applyRoleAccess(); alert("บันทึกข้อมูลเรียบร้อย!\n(หมายเหตุ: การเปลี่ยนชื่ออาจทำให้ต้องไปแต่งตัวใหม่นะ)"); window.location.reload(); } else { alert("อัปเดตรหัสผ่านส่วนตัวสำเร็จ!"); }
+      closeSettingsModal();
+    };
+
+    window.handleAdminUpdateUser = async function(event) {
+      event.preventDefault(); const fName = document.getElementById('adminFriendName').value.trim(); const fPass = document.getElementById('adminFriendPass').value.trim();
+      const isDuplicate = userRegistry.some(u => u.passcode === fPass && u.name.toLowerCase() !== fName.toLowerCase());
+      if(isDuplicate) { alert("เลขนี้ห้ามใช้ ไปใช้เลขอื่นไป๊!!!"); return; }
+      const idx = userRegistry.findIndex(u => u.name.toLowerCase() === fName.toLowerCase());
+      if (idx !== -1) userRegistry[idx].passcode = fPass; else userRegistry.push({ name: fName, passcode: fPass });
+      await saveUserRegistryToFirebase(); document.getElementById('adminFriendName').value = ''; document.getElementById('adminFriendPass').value = ''; alert(`บันทึกสิทธิ์ของ ${fName} เรียบร้อย!`);
+    };
+
+    window.deleteUserPasscode = async function(name) { if (confirm(`เตะ ${name} ออกจากระบบ ใช่ไหม?`)) { userRegistry = userRegistry.filter(u => u.name !== name); await saveUserRegistryToFirebase(); } };
+
+    function renderAdminUserTable() {
+      const table = document.getElementById('adminUserTableContainer'); if(!table) return; table.innerHTML = '';
+      userRegistry.forEach(u => { table.innerHTML += `<div class="flex justify-between items-center bg-white border border-slate-200 p-2 rounded-xl text-xs shadow-2xs"><div><span class="font-bold text-slate-700 mr-2">👤 ${u.name}</span><span class="font-mono text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md">PS: ${u.passcode}</span></div><button onclick="deleteUserPasscode('${u.name}')" class="text-red-500 hover:bg-red-50 rounded px-1.5 py-0.5 cursor-pointer">🗑ลบ</button></div>`; });
+    }
+
+    // ฟังก์ชันรันเวย์สไปรท์ชีท (คงเดิม)
+    function renderTripAvatars() {
+      const targetTrip = trips.find(t => t.id === currentOpenTripId); if (!targetTrip) return; const container = document.getElementById('tripAvatarsContainer'); if (!container) return; container.innerHTML = '';
       targetTrip.memberList.forEach(name => {
         const avatarData = allAvatars[name];
         if (avatarData && avatarData.charId !== undefined) {
-          const charItem = characterList[avatarData.charId];
-          const bgStyle = charItem ? `background-image: url('${charItem.sprite}');` : '';
-
-          container.innerHTML += `
-            <div class="flex flex-col items-center gap-1 relative group cursor-help shrink-0 z-10 mb-1">
-              <div class="absolute -top-10 bg-blue-600 border border-blue-400 text-white font-black text-[10px] px-2 py-1 rounded-xl shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30 pointer-events-none">
-                ${avatarData.speech || 'Let\'s Go! ✈️'}
-              </div>
-              <div class="w-14 h-14 bg-black/40 backdrop-blur-xs rounded-xl border border-white/10 flex items-center justify-center p-1 shadow-md relative">
-                <div class="w-12 h-12 relative">
-                  <div id="avatar_img_${name.replace(/\s+/g, '')}" class="absolute inset-0 w-full h-full pixel-board" style="background-repeat: no-repeat; background-position: 0% 0; ${bgStyle}"></div>
-                </div>
-              </div>
-              <span class="text-[10px] font-black text-white bg-slate-950/80 px-1.5 py-0.5 rounded-md border border-white/5 shadow-xs">${name}</span>
-            </div>
-          `;
+          const charItem = characterList[avatarData.charId]; const bgStyle = charItem ? `background-image: url('${charItem.sprite}');` : '';
+          container.innerHTML += `<div class="flex flex-col items-center gap-1 relative group cursor-help shrink-0 z-10 mb-1"><div class="absolute -top-10 bg-blue-600 border border-blue-400 text-white font-black text-[10px] px-2 py-1 rounded-xl shadow-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-30 pointer-events-none">${avatarData.speech || 'Let\'s Go! ✈️'}</div><div class="w-14 h-14 bg-black/40 backdrop-blur-xs rounded-xl border border-white/10 flex items-center justify-center p-1 shadow-md relative"><div class="w-12 h-12 relative"><div id="avatar_img_${name.replace(/\s+/g, '')}" class="absolute inset-0 w-full h-full pixel-board" style="background-repeat: no-repeat; background-position: 0% 0; ${bgStyle}"></div></div></div><span class="text-[10px] font-black text-white bg-slate-950/80 px-1.5 py-0.5 rounded-md border border-white/5 shadow-xs">${name}</span></div>`;
         } else {
-          container.innerHTML += `
-            <div class="flex flex-col items-center gap-1 opacity-40 shrink-0 mb-1">
-              <div class="w-14 h-14 bg-slate-800 rounded-xl border border-dashed border-slate-600 flex items-center justify-center text-xs font-bold text-slate-400">?</div>
-              <span class="text-[10px] font-medium text-slate-300 bg-slate-900 px-1 rounded-sm">${name}</span>
-            </div>
-          `;
+          container.innerHTML += `<div class="flex flex-col items-center gap-1 opacity-40 shrink-0 mb-1"><div class="w-14 h-14 bg-slate-800 rounded-xl border border-dashed border-slate-600 flex items-center justify-center text-xs font-bold text-slate-400">?</div><span class="text-[10px] font-medium text-slate-300 bg-slate-900 px-1 rounded-sm">${name}</span></div>`;
         }
       });
     }
 
     setInterval(() => {
-      globalFrameTick++;
-      const targetTrip = trips.find(t => t.id === currentOpenTripId); if (!targetTrip) return;
-
+      globalFrameTick++; const targetTrip = trips.find(t => t.id === currentOpenTripId); if (!targetTrip) return;
       targetTrip.memberList.forEach(name => {
-        const avatarData = allAvatars[name];
-        if (avatarData && avatarData.charId !== undefined) {
-          const charItem = characterList[avatarData.charId];
-          if (charItem) {
-            const imgEl = document.getElementById(`avatar_img_${name.replace(/\s+/g, '')}`);
-            if (imgEl) {
-              if (charItem.grid) {
-                const { cols, rows, totalFrames } = charItem.grid;
-                const currentFrame = globalFrameTick % totalFrames;
-                imgEl.style.backgroundSize = `${cols * 100}% ${rows * 100}%`;
-                const xPos = cols > 1 ? ((currentFrame % cols) / (cols - 1)) * 100 : 0;
-                const yPos = rows > 1 ? (Math.floor(currentFrame / cols) / (rows - 1)) * 100 : 0;
-                imgEl.style.backgroundPosition = `${xPos}% ${yPos}%`;
-              } 
-              else {
-                const frames = charItem.frames || 1;
-                imgEl.style.backgroundSize = `${frames * 100}% 100%`;
-                const xPos = frames > 1 ? ((globalFrameTick % frames) / (frames - 1)) * 100 : 0;
-                imgEl.style.backgroundPosition = `${xPos}% 0`;
-              }
+        const avatarData = allAvatars[name]; if (avatarData && avatarData.charId !== undefined) {
+          const charItem = characterList[avatarData.charId]; if (charItem) {
+            const imgEl = document.getElementById(`avatar_img_${name.replace(/\s+/g, '')}`); if (imgEl) {
+              if (charItem.grid) { const { cols, rows, totalFrames } = charItem.grid; const currentFrame = globalFrameTick % totalFrames; imgEl.style.backgroundSize = `${cols * 100}% ${rows * 100}%`; const xPos = cols > 1 ? ((currentFrame % cols) / (cols - 1)) * 100 : 0; const yPos = rows > 1 ? (Math.floor(currentFrame / cols) / (rows - 1)) * 100 : 0; imgEl.style.backgroundPosition = `${xPos}% ${yPos}%`; } 
+              else { const frames = charItem.frames || 1; imgEl.style.backgroundSize = `${frames * 100}% 100%`; const xPos = frames > 1 ? ((globalFrameTick % frames) / (frames - 1)) * 100 : 0; imgEl.style.backgroundPosition = `${xPos}% 0`; }
             }
           }
         }
       });
     }, 150);
 
-    function renderDayTabs(trip) {
-      const container = document.getElementById('dayTabsContainer'); if(!container) return; container.innerHTML = '';
-      calculateTotalDaysList(trip.start, trip.end).forEach((dateStr, idx) => {
-        const isActive = idx === currentSelectedDayIndex; const btnStyle = isActive ? "bg-blue-600 text-white font-bold" : "bg-gray-100 text-gray-600";
-        container.innerHTML += `<button onclick="switchDayTab(${idx})" class="text-xs px-3 py-2 rounded-xl whitespace-nowrap shrink-0 cursor-pointer ${btnStyle}">วันที่ ${idx + 1} (${dateStr.substring(5)})</button>`;
-      });
-    }
-
+    // ฟังก์ชันวาดหน้าและบิล (คงเดิม)
+    function renderDayTabs(trip) { const container = document.getElementById('dayTabsContainer'); if(!container) return; container.innerHTML = ''; calculateTotalDaysList(trip.start, trip.end).forEach((dateStr, idx) => { const isActive = idx === currentSelectedDayIndex; const btnStyle = isActive ? "bg-blue-600 text-white font-bold" : "bg-gray-100 text-gray-600"; container.innerHTML += `<button onclick="switchDayTab(${idx})" class="text-xs px-3 py-2 rounded-xl whitespace-nowrap shrink-0 cursor-pointer ${btnStyle}">วันที่ ${idx + 1} (${dateStr.substring(5)})</button>`; }); }
     window.switchDayTab = function(idx) { currentSelectedDayIndex = idx; renderPlansAndExpenses(); const targetTrip = trips.find(t => t.id === currentOpenTripId); if(targetTrip) renderDayTabs(targetTrip); };
-
     function renderPlansAndExpenses() {
-      const targetTrip = trips.find(t => t.id === currentOpenTripId); if (!targetTrip) return;
-      const planContainer = document.getElementById('planTimelineContainer'); planContainer.innerHTML = '';
-      const filteredPlans = (targetTrip.plans || []).filter(p => p.dayIndex === currentSelectedDayIndex);
-      if (filteredPlans.length === 0) { planContainer.innerHTML = `<p class="text-xs text-gray-400 italic py-6 text-center w-full">วันนี้ยังไม่มีกิจกรรมเลย</p>`; } 
-      else {
-        filteredPlans.sort((a, b) => a.time.localeCompare(b.time));
-        filteredPlans.forEach(plan => {
-          const mapBtn = plan.mapUrl ? `<a href="${plan.mapUrl}" target="_blank" class="text-[11px] bg-white border px-2 py-1 rounded-md text-blue-600 font-bold shadow-2xs">📍 แผนที่</a>` : '';
-          const adminControls = `<button onclick="openPlanModal('edit', '${plan.id}')" class="text-xs text-gray-400 p-0.5 cursor-pointer">✏️</button><button onclick="deletePlan('${plan.id}')" class="text-xs text-gray-400 p-0.5 cursor-pointer">🗑️</button>`;
-          planContainer.innerHTML += `<div class="flex items-start gap-3 relative pl-2"><div class="w-6 h-6 rounded-full bg-blue-600 border-4 border-white z-10"></div><div class="bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 flex-1 flex justify-between items-center"><div class="truncate max-w-[70%]"><span class="text-xs font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md mr-1">${plan.time}</span><span class="text-sm font-semibold text-gray-800">${plan.title}</span></div><div class="flex items-center gap-1">${mapBtn} ${adminControls}</div></div></div>`;
-        });
-      }
-
-      const expenseContainer = document.getElementById('expenseListContainer'); expenseContainer.innerHTML = '';
-      let totalSum = 0; let balances = {}; targetTrip.memberList.forEach(m => balances[m] = 0);
-      if (!targetTrip.expenses || targetTrip.expenses.length === 0) { expenseContainer.innerHTML = `<p class="text-xs text-gray-400 italic py-6 text-center">ยังไม่มีบิลค่าใช้จ่ายเลย</p>`; } 
-      else {
-        targetTrip.expenses.forEach(exp => {
-          const amt = parseFloat(exp.amount) || 0; totalSum += amt;
-          const splitWith = exp.splitBetween || targetTrip.memberList; const shareCost = amt / splitWith.length;
-          if(balances[exp.payer] !== undefined) balances[exp.payer] += amt;
-          splitWith.forEach(p => { if(balances[p] !== undefined) balances[p] -= shareCost; });
-          const receiptBtn = exp.receiptUrl ? `<a href="${exp.receiptUrl}" target="_blank" class="text-[10px] text-emerald-600 font-bold block hover:underline">🖼️ ดูรูปสลิป</a>` : '';
-          expenseContainer.innerHTML += `<div class="flex justify-between items-center bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs"><div class="truncate max-w-[70%]"><span class="font-bold text-gray-700 bg-white border px-1.5 py-0.5 rounded-md mr-1">${exp.payer}</span><span class="text-gray-600 font-semibold">${exp.title}</span><p class="text-[10px] text-gray-400 mt-0.5">คนหาร: ${splitWith.join(', ')}</p>${receiptBtn}</div><div class="flex items-center gap-1.5 shrink-0"><span class="font-extrabold text-gray-900 mr-1">${amt.toLocaleString()} ฿</span><button onclick="openExpenseModal('edit', '${exp.id}')">✏️</button><button onclick="deleteExpense('${exp.id}')">🗑️</button></div></div>`;
-        });
-      }
-
-      document.getElementById('totalExpenseAmount').innerText = `${totalSum.toLocaleString()} บาท`;
-      const summaryContainer = document.getElementById('individualSummaryContainer'); summaryContainer.innerHTML = '';
-      for (let person in balances) {
-        const bal = Math.round(balances[person]); let colorClass = "text-gray-500 bg-gray-100/60"; let text = "เจ๊า 🤝";
-        if (bal > 0) { colorClass = "text-emerald-700 bg-emerald-50 border border-emerald-200"; text = `ได้คืน +${bal.toLocaleString()} ฿`; }
-        else if (bal < 0) { colorClass = "text-red-700 bg-red-50 border border-red-200"; text = `ต้องจ่าย ${bal.toLocaleString()} ฿`; }
-        summaryContainer.innerHTML += `<div class="p-2 rounded-xl flex flex-col ${colorClass}"><span class="font-bold truncate">${person}</span><span class="font-bold text-[10px]">${text}</span></div>`;
-      }
-
-      const debtContainer = document.getElementById('debtClearInstructionsContainer'); debtContainer.innerHTML = '';
-      let debtors = [], creditors = []; for (let person in balances) { if (balances[person] < -1) debtors.push({ name: person, amount: Math.abs(balances[person]) }); else if (balances[person] > 1) creditors.push({ name: person, amount: balances[person] }); }
-      let foundIns = false, dIdx = 0, cIdx = 0;
-      while (dIdx < debtors.length && cIdx < creditors.length) {
-        let deb = debtors[dIdx], cred = creditors[cIdx]; let settled = Math.min(deb.amount, cred.amount);
-        if (settled > 1) { debtContainer.innerHTML += `<div class="flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-xl text-xs"><span class="text-red-600 font-bold">💸 ${deb.name}</span> โอนให้ <span class="text-emerald-600 font-bold">➡️ ${cred.name}</span><span class="ml-auto font-extrabold bg-slate-100 px-2 py-0.5 rounded-md">${Math.round(settled).toLocaleString()} ฿</span></div>`; foundIns = true; }
-        deb.amount -= settled; cred.amount -= settled; if (deb.amount <= 1) dIdx++; if (cred.amount <= 1) cIdx++;
-      }
-      if (!foundIns) debtContainer.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-1">คลังเจ๊ากันทุกคนแล้วจ้า! 🎉</p>`;
+      const targetTrip = trips.find(t => t.id === currentOpenTripId); if (!targetTrip) return; const planContainer = document.getElementById('planTimelineContainer'); planContainer.innerHTML = ''; const filteredPlans = (targetTrip.plans || []).filter(p => p.dayIndex === currentSelectedDayIndex);
+      if (filteredPlans.length === 0) { planContainer.innerHTML = `<p class="text-xs text-gray-400 italic py-6 text-center w-full">วันนี้ยังไม่มีกิจกรรมเลย</p>`; } else { filteredPlans.sort((a, b) => a.time.localeCompare(b.time)); filteredPlans.forEach(plan => { const mapBtn = plan.mapUrl ? `<a href="${plan.mapUrl}" target="_blank" class="text-[11px] bg-white border px-2 py-1 rounded-md text-blue-600 font-bold shadow-2xs">📍 แผนที่</a>` : ''; const adminControls = `<button onclick="openPlanModal('edit', '${plan.id}')" class="text-xs text-gray-400 p-0.5 cursor-pointer">✏️</button><button onclick="deletePlan('${plan.id}')" class="text-xs text-gray-400 p-0.5 cursor-pointer">🗑️</button>`; planContainer.innerHTML += `<div class="flex items-start gap-3 relative pl-2"><div class="w-6 h-6 rounded-full bg-blue-600 border-4 border-white z-10"></div><div class="bg-slate-50 px-3 py-2 rounded-xl border border-slate-200 flex-1 flex justify-between items-center"><div class="truncate max-w-[70%]"><span class="text-xs font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-md mr-1">${plan.time}</span><span class="text-sm font-semibold text-gray-800">${plan.title}</span></div><div class="flex items-center gap-1">${mapBtn} ${adminControls}</div></div></div>`; }); }
+      const expenseContainer = document.getElementById('expenseListContainer'); expenseContainer.innerHTML = ''; let totalSum = 0; let balances = {}; targetTrip.memberList.forEach(m => balances[m] = 0);
+      if (!targetTrip.expenses || targetTrip.expenses.length === 0) { expenseContainer.innerHTML = `<p class="text-xs text-gray-400 italic py-6 text-center">ยังไม่มีบิลค่าใช้จ่ายเลย</p>`; } else { targetTrip.expenses.forEach(exp => { const amt = parseFloat(exp.amount) || 0; totalSum += amt; const splitWith = exp.splitBetween || targetTrip.memberList; const shareCost = amt / splitWith.length; if(balances[exp.payer] !== undefined) balances[exp.payer] += amt; splitWith.forEach(p => { if(balances[p] !== undefined) balances[p] -= shareCost; }); const receiptBtn = exp.receiptUrl ? `<a href="${exp.receiptUrl}" target="_blank" class="text-[10px] text-emerald-600 font-bold block hover:underline">🖼️ ดูรูปสลิป</a>` : ''; expenseContainer.innerHTML += `<div class="flex justify-between items-center bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl text-xs"><div class="truncate max-w-[70%]"><span class="font-bold text-gray-700 bg-white border px-1.5 py-0.5 rounded-md mr-1">${exp.payer}</span><span class="text-gray-600 font-semibold">${exp.title}</span><p class="text-[10px] text-gray-400 mt-0.5">คนหาร: ${splitWith.join(', ')}</p>${receiptBtn}</div><div class="flex items-center gap-1.5 shrink-0"><span class="font-extrabold text-gray-900 mr-1">${amt.toLocaleString()} ฿</span><button onclick="openExpenseModal('edit', '${exp.id}')">✏️</button><button onclick="deleteExpense('${exp.id}')">🗑️</button></div></div>`; }); }
+      document.getElementById('totalExpenseAmount').innerText = `${totalSum.toLocaleString()} บาท`; const summaryContainer = document.getElementById('individualSummaryContainer'); summaryContainer.innerHTML = ''; for (let person in balances) { const bal = Math.round(balances[person]); let colorClass = "text-gray-500 bg-gray-100/60"; let text = "เจ๊า 🤝"; if (bal > 0) { colorClass = "text-emerald-700 bg-emerald-50 border border-emerald-200"; text = `ได้คืน +${bal.toLocaleString()} ฿`; } else if (bal < 0) { colorClass = "text-red-700 bg-red-50 border border-red-200"; text = `ต้องจ่าย ${bal.toLocaleString()} ฿`; } summaryContainer.innerHTML += `<div class="p-2 rounded-xl flex flex-col ${colorClass}"><span class="font-bold truncate">${person}</span><span class="font-bold text-[10px]">${text}</span></div>`; }
+      const debtContainer = document.getElementById('debtClearInstructionsContainer'); debtContainer.innerHTML = ''; let debtors = [], creditors = []; for (let person in balances) { if (balances[person] < -1) debtors.push({ name: person, amount: Math.abs(balances[person]) }); else if (balances[person] > 1) creditors.push({ name: person, amount: balances[person] }); } let foundIns = false, dIdx = 0, cIdx = 0; while (dIdx < debtors.length && cIdx < creditors.length) { let deb = debtors[dIdx], cred = creditors[cIdx]; let settled = Math.min(deb.amount, cred.amount); if (settled > 1) { debtContainer.innerHTML += `<div class="flex items-center gap-2 bg-white border border-slate-200 px-3 py-1.5 rounded-xl text-xs"><span class="text-red-600 font-bold">💸 ${deb.name}</span> โอนให้ <span class="text-emerald-600 font-bold">➡️ ${cred.name}</span><span class="ml-auto font-extrabold bg-slate-100 px-2 py-0.5 rounded-md">${Math.round(settled).toLocaleString()} ฿</span></div>`; foundIns = true; } deb.amount -= settled; cred.amount -= settled; if (deb.amount <= 1) dIdx++; if (cred.amount <= 1) cIdx++; } if (!foundIns) debtContainer.innerHTML = `<p class="text-xs text-slate-400 italic text-center py-1">คลังเจ๊ากันทุกคนแล้วจ้า! 🎉</p>`;
     }
-
-    window.openPlanModal = function(mode, planId = null) {
-      const targetTrip = trips.find(t => t.id === currentOpenTripId); document.getElementById('planModal').classList.remove('hidden');
-      const daySelect = document.getElementById('planDaySelect'); daySelect.innerHTML = '';
-      calculateTotalDaysList(targetTrip.start, targetTrip.end).forEach((dStr, idx) => { daySelect.innerHTML += `<option value="${idx}">วันที่ ${idx + 1} (${dStr.substring(5)})</option>`; });
-      daySelect.value = currentSelectedDayIndex;
-      if (mode === 'create') { document.getElementById('editPlanId').value = ''; document.getElementById('planTime').value = ''; document.getElementById('planTitle').value = ''; document.getElementById('planMapUrl').value = ''; } 
-      else { const plan = targetTrip.plans.find(p => p.id === planId); if (plan) { document.getElementById('editPlanId').value = plan.id; document.getElementById('planDaySelect').value = plan.dayIndex; document.getElementById('planTime').value = plan.time; document.getElementById('planTitle').value = plan.title; document.getElementById('planMapUrl').value = plan.mapUrl || ''; } }
-    };
-    window.closePlanModal = function() { document.getElementById('planModal').classList.add('hidden'); };
-
-    window.handlePlanSubmit = async function(event) {
-      event.preventDefault(); const targetTrip = trips.find(t => t.id === currentOpenTripId); const editId = document.getElementById('editPlanId').value; const targetDayIdx = parseInt(document.getElementById('planDaySelect').value);
-      const planData = { dayIndex: targetDayIdx, time: document.getElementById('planTime').value, title: document.getElementById('planTitle').value, mapUrl: document.getElementById('planMapUrl').value };
-      if (editId) { const idx = targetTrip.plans.findIndex(p => p.id === editId); if (idx !== -1) targetTrip.plans[idx] = { id: editId, ...planData }; } else { if (!targetTrip.plans) targetTrip.plans = []; targetTrip.plans.push({ id: 'plan-' + Date.now(), ...planData }); }
-      currentSelectedDayIndex = targetDayIdx; await saveTripsToFirebase(); renderDayTabs(targetTrip); closePlanModal();
-    };
-
+    window.openPlanModal = function(mode, planId = null) { const targetTrip = trips.find(t => t.id === currentOpenTripId); document.getElementById('planModal').classList.remove('hidden'); const daySelect = document.getElementById('planDaySelect'); daySelect.innerHTML = ''; calculateTotalDaysList(targetTrip.start, targetTrip.end).forEach((dStr, idx) => { daySelect.innerHTML += `<option value="${idx}">วันที่ ${idx + 1} (${dStr.substring(5)})</option>`; }); daySelect.value = currentSelectedDayIndex; if (mode === 'create') { document.getElementById('editPlanId').value = ''; document.getElementById('planTime').value = ''; document.getElementById('planTitle').value = ''; document.getElementById('planMapUrl').value = ''; } else { const plan = targetTrip.plans.find(p => p.id === planId); if (plan) { document.getElementById('editPlanId').value = plan.id; document.getElementById('planDaySelect').value = plan.dayIndex; document.getElementById('planTime').value = plan.time; document.getElementById('planTitle').value = plan.title; document.getElementById('planMapUrl').value = plan.mapUrl || ''; } } }; window.closePlanModal = function() { document.getElementById('planModal').classList.add('hidden'); };
+    window.handlePlanSubmit = async function(event) { event.preventDefault(); const targetTrip = trips.find(t => t.id === currentOpenTripId); const editId = document.getElementById('editPlanId').value; const targetDayIdx = parseInt(document.getElementById('planDaySelect').value); const planData = { dayIndex: targetDayIdx, time: document.getElementById('planTime').value, title: document.getElementById('planTitle').value, mapUrl: document.getElementById('planMapUrl').value }; if (editId) { const idx = targetTrip.plans.findIndex(p => p.id === editId); if (idx !== -1) targetTrip.plans[idx] = { id: editId, ...planData }; } else { if (!targetTrip.plans) targetTrip.plans = []; targetTrip.plans.push({ id: 'plan-' + Date.now(), ...planData }); } currentSelectedDayIndex = targetDayIdx; await saveTripsToFirebase(); renderDayTabs(targetTrip); closePlanModal(); };
     window.deletePlan = async function(planId) { const targetTrip = trips.find(t => t.id === currentOpenTripId); targetTrip.plans = targetTrip.plans.filter(p => p.id !== planId); await saveTripsToFirebase(); };
-
-    window.openExpenseModal = function(mode, expenseId = null) {
-      const targetTrip = trips.find(t => t.id === currentOpenTripId); document.getElementById('expenseModal').classList.remove('hidden');
-      const payerSelect = document.getElementById('expensePayerSelect'); payerSelect.innerHTML = ''; targetTrip.memberList.forEach(m => { payerSelect.innerHTML += `<option value="${m}">${m}</option>`; });
-      if (currentUserSession) { const matchedName = targetTrip.memberList.find(m => m.toLowerCase() === currentUserSession.name.toLowerCase()); if(matchedName) payerSelect.value = matchedName; }
-      const checkContainer = document.getElementById('splitMembersCheckboxContainer'); checkContainer.innerHTML = '';
-      if (mode === 'create') { document.getElementById('editExpenseId').value = ''; document.getElementById('expenseTitle').value = ''; document.getElementById('expenseAmount').value = ''; document.getElementById('expenseReceiptUrl').value = ''; targetTrip.memberList.forEach(m => { checkContainer.innerHTML += `<label class="flex items-center gap-1 bg-white p-1 rounded-lg border border-slate-200"><input type="checkbox" name="splitShareMembers" value="${m}" checked class="w-3.5 h-3.5"> <span class="truncate">${m}</span></label>`; }); } 
-      else { const exp = targetTrip.expenses.find(e => e.id === expenseId); if (exp) { document.getElementById('editExpenseId').value = exp.id; payerSelect.value = exp.payer; document.getElementById('expenseTitle').value = exp.title; document.getElementById('expenseAmount').value = exp.amount; document.getElementById('expenseReceiptUrl').value = exp.receiptUrl || ''; targetTrip.memberList.forEach(m => { const isChecked = exp.splitBetween.includes(m) ? 'checked' : ''; checkContainer.innerHTML += `<label class="flex items-center gap-1 bg-white p-1 rounded-lg border border-slate-200"><input type="checkbox" name="splitShareMembers" value="${m}" ${isChecked} class="w-3.5 h-3.5"> <span class="truncate">${m}</span></label>`; }); } }
-    };
-    window.closeExpenseModal = function() { document.getElementById('expenseModal').classList.add('hidden'); };
-
-    window.handleExpenseSubmit = async function(event) {
-      event.preventDefault(); const targetTrip = trips.find(t => t.id === currentOpenTripId); const editId = document.getElementById('editExpenseId').value; const checkedBoxes = document.querySelectorAll('input[name="splitShareMembers"]:checked');
-      let chosenMembers = Array.from(checkedBoxes).map(cb => cb.value); if(chosenMembers.length === 0) chosenMembers = [...targetTrip.memberList];
-      const expenseData = { payer: document.getElementById('expensePayerSelect').value, title: document.getElementById('expenseTitle').value, amount: parseFloat(document.getElementById('expenseAmount').value) || 0, receiptUrl: document.getElementById('expenseReceiptUrl').value, splitBetween: chosenMembers };
-      if (editId) { const idx = targetTrip.expenses.findIndex(e => e.id === editId); if (idx !== -1) targetTrip.expenses[idx] = { id: editId, ...expenseData }; } else { if (!targetTrip.expenses) targetTrip.expenses = []; targetTrip.expenses.push({ id: 'exp-' + Date.now(), ...expenseData }); }
-      await saveTripsToFirebase(); closeExpenseModal();
-    };
-
+    window.openExpenseModal = function(mode, expenseId = null) { const targetTrip = trips.find(t => t.id === currentOpenTripId); document.getElementById('expenseModal').classList.remove('hidden'); const payerSelect = document.getElementById('expensePayerSelect'); payerSelect.innerHTML = ''; targetTrip.memberList.forEach(m => { payerSelect.innerHTML += `<option value="${m}">${m}</option>`; }); if (currentUserSession) { const matchedName = targetTrip.memberList.find(m => m.toLowerCase() === currentUserSession.name.toLowerCase()); if(matchedName) payerSelect.value = matchedName; } const checkContainer = document.getElementById('splitMembersCheckboxContainer'); checkContainer.innerHTML = ''; if (mode === 'create') { document.getElementById('editExpenseId').value = ''; document.getElementById('expenseTitle').value = ''; document.getElementById('expenseAmount').value = ''; document.getElementById('expenseReceiptUrl').value = ''; targetTrip.memberList.forEach(m => { checkContainer.innerHTML += `<label class="flex items-center gap-1 bg-white p-1 rounded-lg border border-slate-200"><input type="checkbox" name="splitShareMembers" value="${m}" checked class="w-3.5 h-3.5"> <span class="truncate">${m}</span></label>`; }); } else { const exp = targetTrip.expenses.find(e => e.id === expenseId); if (exp) { document.getElementById('editExpenseId').value = exp.id; payerSelect.value = exp.payer; document.getElementById('expenseTitle').value = exp.title; document.getElementById('expenseAmount').value = exp.amount; document.getElementById('expenseReceiptUrl').value = exp.receiptUrl || ''; targetTrip.memberList.forEach(m => { const isChecked = exp.splitBetween.includes(m) ? 'checked' : ''; checkContainer.innerHTML += `<label class="flex items-center gap-1 bg-white p-1 rounded-lg border border-slate-200"><input type="checkbox" name="splitShareMembers" value="${m}" ${isChecked} class="w-3.5 h-3.5"> <span class="truncate">${m}</span></label>`; }); } } }; window.closeExpenseModal = function() { document.getElementById('expenseModal').classList.add('hidden'); };
+    window.handleExpenseSubmit = async function(event) { event.preventDefault(); const targetTrip = trips.find(t => t.id === currentOpenTripId); const editId = document.getElementById('editExpenseId').value; const checkedBoxes = document.querySelectorAll('input[name="splitShareMembers"]:checked'); let chosenMembers = Array.from(checkedBoxes).map(cb => cb.value); if(chosenMembers.length === 0) chosenMembers = [...targetTrip.memberList]; const expenseData = { payer: document.getElementById('expensePayerSelect').value, title: document.getElementById('expenseTitle').value, amount: parseFloat(document.getElementById('expenseAmount').value) || 0, receiptUrl: document.getElementById('expenseReceiptUrl').value, splitBetween: chosenMembers }; if (editId) { const idx = targetTrip.expenses.findIndex(e => e.id === editId); if (idx !== -1) targetTrip.expenses[idx] = { id: editId, ...expenseData }; } else { if (!targetTrip.expenses) targetTrip.expenses = []; targetTrip.expenses.push({ id: 'exp-' + Date.now(), ...expenseData }); } await saveTripsToFirebase(); closeExpenseModal(); };
     window.deleteExpense = async function(expenseId) { const targetTrip = trips.find(t => t.id === currentOpenTripId); targetTrip.expenses = targetTrip.expenses.filter(e => e.id !== expenseId); await saveTripsToFirebase(); };
-
-    window.copyLineSummary = function() {
-      const targetTrip = trips.find(t => t.id === currentOpenTripId); let textSummary = `📝 รายงานสรุปบัญชีทริป: ${targetTrip.name}\n━━━━━━━━━━━━━━━━━━━━\n`; const lines = document.querySelectorAll('#debtClearInstructionsContainer div');
-      if(lines.length === 0 || document.querySelector('#debtClearInstructionsContainer p')) { textSummary += `ทุกคนแชร์เงินเท่ากันลงตัวพอดี ไม่มีหนี้ค้างกองกลางจ้า! 🎉\n`; } else { textSummary += `📌 สรุปเส้นทางจับคู่โอนเงินเคลียร์หนี้:\n`; lines.forEach(el => { textSummary += `• ${el.innerText}\n`; }); }
-      textSummary += `━━━━━━━━━━━━━━━━━━━━\nสรุปยอดหนี้อัตโนมัติผ่านแอปกลุ่ม GangTrip ✈️`; navigator.clipboard.writeText(textSummary).then(() => { alert('ก๊อปปี้สรุปหนี้เข้า LINE เรียบร้อย! 🤩'); });
-    };
+    window.copyLineSummary = function() { const targetTrip = trips.find(t => t.id === currentOpenTripId); let textSummary = `📝 รายงานสรุปบัญชีทริป: ${targetTrip.name}\n━━━━━━━━━━━━━━━━━━━━\n`; const lines = document.querySelectorAll('#debtClearInstructionsContainer div'); if(lines.length === 0 || document.querySelector('#debtClearInstructionsContainer p')) { textSummary += `ทุกคนแชร์เงินเท่ากันลงตัวพอดี ไม่มีหนี้ค้างกองกลางจ้า! 🎉\n`; } else { textSummary += `📌 สรุปเส้นทางจับคู่โอนเงินเคลียร์หนี้:\n`; lines.forEach(el => { textSummary += `• ${el.innerText}\n`; }); } textSummary += `━━━━━━━━━━━━━━━━━━━━\nสรุปยอดหนี้อัตโนมัติผ่านแอปกลุ่ม GangTrip ✈️`; navigator.clipboard.writeText(textSummary).then(() => { alert('ก๊อปปี้สรุปหนี้เข้า LINE เรียบร้อย! 🤩'); }); };
   </script>
 </body>
 </html>
