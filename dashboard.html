@@ -133,7 +133,7 @@
 
     async function loadHeaderAvatar() {
       try {
-        const docSnap = await getDoc(doc(db, "gang_avatars", currentUserSession.name)); // ใช้ชื่อเล่นโหลดรูป
+        const docSnap = await getDoc(doc(db, "gang_avatars", currentUserSession.name)); 
         if (docSnap.exists()) {
           const charId = docSnap.data().charId || 0;
           document.getElementById('headerAvatarImg').style.backgroundImage = `url('assets/chars/${charId + 1}.png')`;
@@ -163,7 +163,6 @@
     async function saveUserRegistryToFirebase() { await setDoc(doc(db, "gang_system", "passcodes"), { users: userRegistry }); }
     async function saveTripsToFirebase() { await setDoc(doc(db, "gang_system", "trips_data"), { list: trips }); }
 
-    // ⚙️ ระบบจัดการหน้า Settings
     window.openSettingsModal = function() {
       document.getElementById('settingsModal').classList.remove('hidden'); 
       document.getElementById('selfIdInput').value = currentUserSession.loginId;
@@ -174,13 +173,10 @@
     };
     window.closeSettingsModal = function() { document.getElementById('settingsModal').classList.add('hidden'); };
 
-    // 🧑‍💻 อัปเดตข้อมูลตัวเอง
+    // 🧑‍💻 อัปเดตข้อมูลตัวเอง (เอาเช็กพาสซ้ำออกแล้ว)
     window.handleUpdateSelf = async function(e) {
       e.preventDefault(); const newName = document.getElementById('selfNameInput').value.trim(); const newPass = document.getElementById('selfPassInput').value.trim();
       
-      const isDuplicate = userRegistry.some(u => u.passcode === newPass && u.loginId.toLowerCase() !== currentUserSession.loginId.toLowerCase());
-      if(isDuplicate) { alert("เลขนี้ห้ามใช้ ไปใช้เลขอื่นไป๊!!!"); return; }
-
       const idx = userRegistry.findIndex(u => u.loginId.toLowerCase() === currentUserSession.loginId.toLowerCase());
       if (idx !== -1) { userRegistry[idx].displayName = newName; userRegistry[idx].passcode = newPass; }
       await saveUserRegistryToFirebase();
@@ -188,19 +184,16 @@
       if (newName !== currentUserSession.name) {
         currentUserSession.name = newName; localStorage.setItem('gang_current_session', JSON.stringify(currentUserSession)); applyRoleAccess();
         alert("บันทึกข้อมูลเรียบร้อย!\n(คำเตือน: เปลี่ยนชื่อเล่นแล้วต้องเข้าไปเซฟแต่งตัว Avatar ใหม่อีกรอบนะ!)"); window.location.reload(); 
-      } else { alert("อัปเดตรหัสผ่านส่วนตัวสำเร็จ!"); }
+      } else { alert("อัปเดตข้อมูลส่วนตัวสำเร็จ!"); }
       closeSettingsModal();
     };
 
-    // 👑 แอดมินจัดการลูกข่าย (ระบบ 3 แกน)
+    // 👑 แอดมินจัดการลูกข่าย (เอาเช็กพาสซ้ำออกแล้วเช่นกัน)
     window.handleAdminUpdateUser = async function(event) {
       event.preventDefault(); 
       const adminLoginId = document.getElementById('adminLoginId').value.trim();
       const adminDisplayName = document.getElementById('adminDisplayName').value.trim();
       const adminPass = document.getElementById('adminFriendPass').value.trim();
-
-      const isDuplicate = userRegistry.some(u => u.passcode === adminPass && u.loginId.toLowerCase() !== adminLoginId.toLowerCase());
-      if(isDuplicate) { alert("เลขนี้ห้ามใช้ ไปใช้เลขอื่นไป๊!!!"); return; }
 
       const idx = userRegistry.findIndex(u => u.loginId.toLowerCase() === adminLoginId.toLowerCase());
       if (idx !== -1) { userRegistry[idx].displayName = adminDisplayName; userRegistry[idx].passcode = adminPass; } 
@@ -222,7 +215,6 @@
       });
     }
 
-    // ฟังก์ชันทริป
     window.openTripDetail = function(tripId) { localStorage.setItem('gang_current_trip_id', tripId); window.location.href = "trip-detail.html"; };
     window.openModal = function(mode, tripId = null) {
       document.getElementById('tripModal').classList.remove('hidden');

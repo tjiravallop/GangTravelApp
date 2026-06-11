@@ -131,7 +131,6 @@
     async function saveUserRegistryToFirebase() { await setDoc(doc(db, "gang_system", "passcodes"), { users: userRegistry }); }
     async function saveTripsToFirebase() { await setDoc(doc(db, "gang_system", "trips_data"), { list: trips }); }
 
-    // ⚙️ ระบบ Settings เหมือนหน้า Dashboard
     window.openSettingsModal = function() {
       document.getElementById('settingsModal').classList.remove('hidden'); 
       document.getElementById('selfIdInput').value = currentUserSession.loginId;
@@ -141,24 +140,31 @@
     };
     window.closeSettingsModal = function() { document.getElementById('settingsModal').classList.add('hidden'); };
 
+    // 🧑‍💻 อัปเดตข้อมูลตัวเอง (เอาเช็กพาสซ้ำออกแล้ว)
     window.handleUpdateSelf = async function(e) {
       e.preventDefault(); const newName = document.getElementById('selfNameInput').value.trim(); const newPass = document.getElementById('selfPassInput').value.trim();
-      const isDuplicate = userRegistry.some(u => u.passcode === newPass && u.loginId.toLowerCase() !== currentUserSession.loginId.toLowerCase());
-      if(isDuplicate) { alert("เลขนี้ห้ามใช้ ไปใช้เลขอื่นไป๊!!!"); return; }
+      
       const idx = userRegistry.findIndex(u => u.loginId.toLowerCase() === currentUserSession.loginId.toLowerCase());
       if (idx !== -1) { userRegistry[idx].displayName = newName; userRegistry[idx].passcode = newPass; }
       await saveUserRegistryToFirebase();
-      if (newName !== currentUserSession.name) { currentUserSession.name = newName; localStorage.setItem('gang_current_session', JSON.stringify(currentUserSession)); applyRoleAccess(); alert("บันทึกข้อมูลเรียบร้อย!\n(คำเตือน: เปลี่ยนชื่อเล่นแล้วต้องเข้าไปเซฟแต่งตัว Avatar ใหม่อีกรอบนะ!)"); window.location.reload(); } else { alert("อัปเดตรหัสผ่านส่วนตัวสำเร็จ!"); }
+      
+      if (newName !== currentUserSession.name) { 
+        currentUserSession.name = newName; localStorage.setItem('gang_current_session', JSON.stringify(currentUserSession)); applyRoleAccess(); 
+        alert("บันทึกข้อมูลเรียบร้อย!\n(คำเตือน: เปลี่ยนชื่อเล่นแล้วต้องเข้าไปเซฟแต่งตัว Avatar ใหม่อีกรอบนะ!)"); window.location.reload(); 
+      } else { alert("อัปเดตข้อมูลส่วนตัวสำเร็จ!"); }
       closeSettingsModal();
     };
 
+    // 👑 แอดมินจัดการลูกข่าย (เอาเช็กพาสซ้ำออกแล้ว)
     window.handleAdminUpdateUser = async function(event) {
       event.preventDefault(); const adminLoginId = document.getElementById('adminLoginId').value.trim(); const adminDisplayName = document.getElementById('adminDisplayName').value.trim(); const adminPass = document.getElementById('adminFriendPass').value.trim();
-      const isDuplicate = userRegistry.some(u => u.passcode === adminPass && u.loginId.toLowerCase() !== adminLoginId.toLowerCase());
-      if(isDuplicate) { alert("เลขนี้ห้ามใช้ ไปใช้เลขอื่นไป๊!!!"); return; }
+      
       const idx = userRegistry.findIndex(u => u.loginId.toLowerCase() === adminLoginId.toLowerCase());
-      if (idx !== -1) { userRegistry[idx].displayName = adminDisplayName; userRegistry[idx].passcode = adminPass; } else { userRegistry.push({ loginId: adminLoginId.toLowerCase(), displayName: adminDisplayName, passcode: adminPass }); }
-      await saveUserRegistryToFirebase(); document.getElementById('adminLoginId').value = ''; document.getElementById('adminDisplayName').value = ''; document.getElementById('adminFriendPass').value = ''; alert(`บันทึกสิทธิ์ของ ${adminDisplayName} เรียบร้อย!`);
+      if (idx !== -1) { userRegistry[idx].displayName = adminDisplayName; userRegistry[idx].passcode = adminPass; } 
+      else { userRegistry.push({ loginId: adminLoginId.toLowerCase(), displayName: adminDisplayName, passcode: adminPass }); }
+      
+      await saveUserRegistryToFirebase(); document.getElementById('adminLoginId').value = ''; document.getElementById('adminDisplayName').value = ''; document.getElementById('adminFriendPass').value = ''; 
+      alert(`บันทึกสิทธิ์ของ ${adminDisplayName} เรียบร้อย!`);
     };
 
     window.deleteUserPasscode = async function(loginId, dispName) { if (confirm(`เตะ ${dispName} ออกจากระบบ ใช่ไหม?`)) { userRegistry = userRegistry.filter(u => u.loginId !== loginId); await saveUserRegistryToFirebase(); } };
